@@ -1,0 +1,244 @@
+================================================
+Version 0.9.3.2 - Alpha (Spetember 29 - 2012)
+================================================
+[ADDED] a new text input method: SetMultiline(bool)
+[ADDED] a new text input method: GetVerticalScrollBody()
+[ADDED] a new text input method: GetHorizontalScrollBody()
+[ADDED] a new text input method: SetText(text)
+[ADDED] a new text input method: HasVerticalScrollBar()
+[ADDED] a new text input method: HasHorizontalScrollBar()
+[ADDED] a new text input method: GetFont()
+[ADDED] a new text input method: GetTextColor()
+[ADDED] a new text input method: GetLineNumbersPanel()
+[ADDED] a new text input method: GetMultiline()
+[ADDED] a new text input method: GetTextX()
+[ADDED] a new text input method: GetTextY()
+[ADDED] a new text input method: IsAllTextSelected()
+[ADDED] a new text input method: GetLines()
+[ADDED] a new text input method: GetOffsetX()
+[ADDED] a new text input method: GetOffsetY()
+[ADDED] a new text input method: GetIndicatorX()
+[ADDED] a new text input method: GetIndicatorY()
+[ADDED] a new text input method: GetLineNumbersEnabled()
+[ADDED] a new text input method: GetItemWidth()
+[ADDED] a new text input method: GetItemHeight()
+[ADDED] a new text input method: SetTabReplacement(tabreplacement)
+[ADDED] a new text input method: GetTabReplacement()
+[ADDED] a new scroll area method: GetBarType()
+[ADDED] a new scroll bar method: IsDragging()
+[ADDED] a new scroll bar method: GetBarType()
+[ADDED] a new scroll button method: GetScrollType()
+[ADDED] a new tab button method: GetText()
+[ADDED] a new tab button method: GetImage()
+[ADDED] a new tab button method: GetTabNumber()
+[ADDED] a new column list header method: GetName()
+[ADDED] a new column list row method: GetColumnData()
+[ADDED] a new multichoice method: SetText(text)
+[ADDED] a new multichoice method: GetText()
+[ADDED] a new multichoice row method: GetText()
+[ADDED] a new progressbar method: GetBarWidth()
+[ADDED] a new internal object: linenumberspanel
+[ADDED] multiline support for the text input object
+[ADDED] ability to select all text within a text input
+
+[FIXED] progressbar object not positioning itself properly if it's parent was the base object
+[FIXED] a typeo in the syntax of loveframes.util.SplitString (was "SplitSring", changed to "SplitString")
+[FIXED] the tooltip object not disapearing if it was visible when it's object's visibility was changed to false
+[FIXED] the text input object's x offset not being adjusted initially when the width of it's text would would become wider than it's drawing area
+
+[CHANGED] massive code cleanup for optimization and 
+[CHANGED] frames can now be parent to other objects
+[CHANGED] textinput:RunBlink() to textinput:UpdateIndicator()
+[CHANGED] textinput:GetBlinkerVisisbility() to textinput:GetIndicatorVisisbility()
+[CHANGED] textinput:MoveBlinker(num, exact) to textinput:MoveIndicator(num, exact)
+[CHANGED] scrollbars now only autoscroll when their list's item width/height is greater thant their previous list's previous item width/height
+[CHANGED] cleaned up the code for the default skins
+[CHANGED] the text input object's text is no longer drawn internally by the object and should now be draw within the object's skin drawing function
+[CHANGED] the column list row object's text is no longer drawn internally by the object and should now be draw within the object's skin drawing function
+
+[REMOVED] textinput:SetTextColor(color)
+[REMOVED] textinput:GetTextColor()
+[REMOVED] columnlistrow:SetTextColor()
+
+================================================
+Version 0.9.3.1 - Alpha (Spetember 2 - 2012)
+================================================
+[ADDED] numpad enter key support for textinput.OnEnter
+
+[FIXED] duplicate progressbar:GetCompleted() in progressbar.lua
+
+[CHANGED] textinput.OnTextEnterd to textinput.OnTextChanged
+[CHANGED] textinput.OnTextChanged is now also called when the backspace key is pressed
+
+================================================
+Version 0.9.3 - Alpha (Spetember 1 - 2012)
+================================================
+[ADDED] a new base method: GetParents()
+[ADDED] a new base method: IsTopInternal()
+[ADDED] a new base method: IsInternal()
+[ADDED] a new base method: GetType()
+[ADDED] a new checkbox method: GetFont()
+[ADDED] a new checkbox method: GetBoxSize()
+[ADDED] a new checkbox method: GetBoxWidth()
+[ADDED] a new checkbox method: GetBoxHeight()
+[ADDED] a new image method: GetImage()
+[ADDED] a new image method: GetColor()
+[ADDED] a new progressbar method: GetCompleted()
+[ADDED] a new tabs method: GetTabNumber()
+[ADDED] a new text method: GetLines()
+[ADDED] a new text input method: SetLimit(limit)
+[ADDED] a new text input method: SetUsable(usable)
+[ADDED] a new text input method: SetUnusable(unusable)
+[ADDED] a new text input method: Clear()
+[ADDED] a new text input method: GetText()
+[ADDED] support for line breaks in the text object (please refer to the wiki on how to format your text with line breaks)
+[ADDED] more information to the debug overlay
+
+[FIXED] tooltips and multichoice lists not functioning properly when a frame was modaled
+[FIXED] the text object not moving it's base parent to the top when clicked if it's base parent was a frame
+[FIXED] the list object not scrolling via the mouse wheel due to certain collision detection issues
+[FIXED] tooltips flickering when in a hover state
+[FIXED] slider calculation errors
+[FIXED] skin.DrawRepeatingImage creating a new image every frame
+[FIXED] checkbox text not scrolling properly when in a list
+[FIXED] the collapsible category's object not scrolling properly when in a list
+[FIXED] skins not assuming the drawing functions of the default skins if drawing functions in the active skin were missing
+[FIXED] some objects not being removed
+[FIXED] sliders not scrolling properly when in a list 
+
+[CHANGED] various code for a small cleanup
+[CHANGED] tooltips from being children of the base object to internals of the base object
+[CHANGED] tooltips from never being removed to being removed when their assigned object is removed
+[CHANGED] tooltips are now not able to be assigned to the base object (this would cause an error due to the way the tooltip currently functions)
+[CHANGED] the text object now positions it's text when SetText is called instead of positioning it's text every frame
+[CHANGED] slider:SetMax(max), slider:SetMin(min) and slider:SetMinMax(min, max) now adjust the slider's value if the slider's value is out of the range specified
+[CHANGED] loveframes.Create(data, parent) now activates an error screen if the object specified is invalid
+
+================================================
+Version 0.9.2.5 - Alpha (June 1 - 2012)
+================================================
+[FIXED] the text object not drawing numbers in certain situations
+[FIXED] a typo in the changelog
+
+================================================
+Version 0.9.2.4 - Alpha (May 29 - 2012)
+================================================
+[FIXED] the SetSkin(skin) method causing a stack overflow
+
+================================================
+Version 0.9.2.3 - Alpha (May 27 - 2012)
+================================================
+[FIXED] imagebutton.OnClick not working
+[FIXED] text being added into the text input object at incorrect positions when the value of textinput.blinknum was 0
+[FIXED] a bug that would cause an error when running SetVisible on a frame object when the value of frame.showclose was true
+
+================================================
+Version 0.9.2.2 - Alpha (May 23 - 2012)
+================================================
+[FIXED] vertical slider value direction (top is now max value and bottom is 0)
+[FIXED] text flashing in the text input object when moving the text blinker to the right
+[FIXED] text blinker in the text input object not appearing in certain situations
+
+================================================
+Version 0.9.2 - Alpha (May 22 - 2012)
+================================================
+[ADDED] a new slider method: SetButtonSize(width, height)
+[ADDED] a new slider method: GetButtonSize()
+[ADDED] a new slider method: SetSlideType(slidetype)
+[ADDED] a new slider button method: MoveToY(y)
+
+[REMOVED] slider method: SetButtonYCenter(y)
+[REMOVED] slider method: GetButtonYCenter()
+
+[FIXED] the column list row object not setting it's text's font to it's font
+[FIXED] a small graient error in the default skins
+[FIXED] an error that caused tab buttons to be overscrolled with the middle mouse button
+[FIXED] the scroll area object not moving it's base parent to the top when clicked (only in situatuions where it'sbase parent was a frame)
+
+[CHANGED] sliders no longer use ycenter for button positioning
+[CHANGED] slider functionality, sliders can now be horizontal or vertical (use slider:SetSlideType("horizontal" or "vertical"))
+[CHANGED] lots of code for optimization and general cleanliness
+[CHANGED] a few minor things in the default skins
+[CHANGED] scrollbar hover behavior when being moved via it's scroll area being clicked (will no longer auto hover when it reaches the mouse position)
+
+================================================
+Version 0.9.1.6 - Alpha (May 17 - 2012)
+================================================
+[ADDED] a new column list method: Clear()
+[ADDED] a new column list method: SetAutoScroll(bool)
+[ADDED] "autoscroll" property for the column list object
+[ADDED] a new column list area method: Clear()
+[ADDED] a new skin function: DrawOverTextInput()
+
+[FIXED] not being able to move the column list object's scrollbar by clicking on it's scroll area
+[FIXED] column list rows color indexs becoming disorderd when the list was sorted via a column list header
+
+[CHANGED] a few minor things in the default skins
+
+================================================
+Version 0.9.1.5 - Alpha (May 16 - 2012)
+================================================
+[FIXED] a bug that caused scrollbars to always autoscroll
+
+================================================
+Version 0.9.1.4 - Alpha (May 16 - 2012)
+================================================
+[FIXED] list:SetAutoScroll() not working
+
+================================================
+Version 0.9.1.3 - Alpha (May 14 - 2012)
+================================================
+[ADDED] modal system for frames
+[ADDED] a new frame method: SetModal(bool)
+[ADDED] a new frame method: GetModal()
+[ADDED] a new frame method: SetVisible(bool) - this override is part of a frame bug fix
+[ADDED] "showclose" property for the frame object
+[ADDED] a new internal object: modal background
+[ADDED] a new base method: IsActive()
+[ADDED] a new base method: CenterX()
+[ADDED] a new base method: CenterY()
+[ADDED] a new skin function: DrawOverColumList()
+
+[FIXED] a bug that made the frame's close button become visisble when the frame was made visible and show close button was set to false
+
+================================================
+Version 0.9.1.2 - Alpha (May 12 - 2012)
+================================================
+[ADDED] a system for preventing objects from being hovered over when another object is being pressed or is "down"
+[ADDED] "down" property for the checkbox object
+[ADDED] "down" property for the collapsible category object
+[ADDED] a new method for the tabs object: SetToolTipFont(font)
+
+[FIXED] list:GetScrollBar() crashing when the list had no scroll bar
+[FIXED] not being able to move the text input blinker to the front or end of the it's text by clicking on it's whitespace
+[FIXED] the multichoice row object being "down" when mouse buttons other than the left mouse button were pressed
+
+[CHANGED] collapsible category opening and closing system (will now only open or close when "down")
+
+================================================
+Version 0.9.1 - Alpha (May 8 - 2012)
+================================================
+[ADDED] a new object: image button
+[ADDED] a new skin: Orange
+[ADDED] a new column list row method: SetTextPos(x, y)
+[ADDED] a new column list row method: SetFont(font)
+[ADDED] a new column list row method: GetFont()
+[ADDED] a new column list row method: GetColorIndex()
+[ADDED] a new column list row method: SetTextColor(color)
+[ADDED] a new debug function: SkinSelector()
+[ADDED] license.txt
+[ADDED] changelog.txt
+
+[CHANGED] the name of the default skin to Blue
+[CHANGED] the drawing system of the image object, the image object will now draw it's image from it's skin function instead of it's internal drawing function
+[CHANGED] argument type for adding an image to a tab in tabs:AddTab(), the image argument can now be either an image object or a string containg the path to an image
+[CHANGED] the look of the debug overlay
+[CHANGED] some of the code within the default skins to improve performance (as suggested by kikito)
+
+[REMOVED] license.html
+[REMOVED] loveframes.graphics and graphics.lua
+
+================================================
+Version 0.9 - Alpha (May 5 - 2012)
+================================================
+Initial commit

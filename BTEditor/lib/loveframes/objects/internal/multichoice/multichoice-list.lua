@@ -1,0 +1,391 @@
+--[[------------------------------------------------
+	-- Love Frames - A GUI library for LOVE --
+	-- Copyright (c) 2012 Kenny Shields --
+--]]------------------------------------------------
+
+-- multichoicelist class
+multichoicelist = class("multichoicelist", base)
+multichoicelist:include(loveframes.templates.default)
+
+--[[---------------------------------------------------------
+	- func: initialize()
+	- desc: initializes the object
+--]]---------------------------------------------------------
+function multichoicelist:initialize(object)
+	
+	self.type           = "multichoice-list"
+	self.parent         = loveframes.base
+	self.list           = object
+	self.x              = object.x
+	self.y              = object.y + self.list.height
+	self.width          = self.list.width
+	self.height         = 0
+	self.clickx         = 0
+	self.clicky         = 0
+	self.padding        = self.list.listpadding
+	self.spacing        = self.list.listspacing
+	self.offsety        = 0
+	self.offsetx        = 0
+	self.extra          = 0
+	self.canremove      = false
+	self.internal       = true
+	self.vbar           = false
+	self.children       = {}
+	self.internals      = {}
+	
+	for k, v in ipairs(object.choices) do
+		local row = multichoicerow:new()
+		row:SetText(v)
+		self:AddItem(row)
+	end
+	
+	table.insert(loveframes.base.children, self)
+	
+end
+
+--[[---------------------------------------------------------
+	- func: update(deltatime)
+	- desc: updates the object
+--]]---------------------------------------------------------
+function multichoicelist:update(dt)
+	
+	local visible      = self.visible
+	local alwaysupdate = self.alwaysupdate
+	
+	if not visible then
+		if not alwaysupdate then
+			return
+		end
+	end
+	
+	local width     = love.graphics.getWidth()
+	local height    = love.graphics.getHeight()
+	local x, y      = love.mouse.getPosition()
+	local selfcol   = loveframes.util.BoundingBox(x, self.x, y, self.y, 1, self.width, 1, self.height)
+	local parent    = self.parent
+	local base      = loveframes.base
+	local upadte    = self.Update
+	local internals = self.internals
+	local children  = self.children
+	
+	-- move to parent if there is a parent
+	if parent ~= base then
+		self.x = parent.x + self.staticx
+		self.y = parent.y + self.staticy
+	end
+		
+	if self.x < 0 then
+		self.x = 0
+	end
+	
+	if self.x + self.width > width then
+		self.x = width - self.width
+	end
+	
+	if self.y < 0 then
+		self.y = 0
+	end
+	
+	if self.y + self.height > height then
+		self.y = height - self.height
+	end
+	
+	for k, v in ipairs(internals) do
+		v:update(dt)
+	end
+	
+	for k, v in ipairs(children) do
+		v:update(dt)
+		v:SetClickBounds(self.x, self.y, self.width, self.height)
+		v.y = (v.parent.y + v.staticy) - self.offsety
+		v.x = (v.parent.x + v.staticx) - self.offsetx
+	end
+	
+	if upadte then
+		upadte(self, dt)
+	end
+	
+end
+
+--[[---------------------------------------------------------
+	- func: draw()
+	- desc: draws the object
+--]]---------------------------------------------------------
+function multichoicelist:draw()
+
+	local visible      = self.visible
+	
+	if not visible then
+		return
+	end
+	
+	local stencilfunc   = function() love.graphics.rectangle("fill", self.x, self.y, self.width, self.height) end
+	local stencil       = love.graphics.newStencil(stencilfunc)
+	local skins         = loveframes.skins.available
+	local skinindex     = loveframes.config["ACTIVESKIN"]
+	local defaultskin   = loveframes.config["DEFAULTSKIN"]
+	local selfskin      = self.skin
+	local skin          = skins[selfskin] or skins[skinindex]
+	local drawfunc      = skin.DrawMultiChoiceList or skins[defaultskin].DrawMultiChoiceList
+	local drawoverfunc  = skin.DrawOverMultiChoiceList or skins[defaultskin].DrawOverMultiChoiceList
+	local draw          = self.Draw
+	local drawcount     = loveframes.drawcount
+	local internals     = self.internals
+	local children      = self.children
+	
+	loveframes.drawcount = drawcount + 1
+	self.draworder = loveframes.drawcount
+		
+	if draw then
+		draw(self)
+	else
+		drawfunc(self)
+	end
+		
+	for k, v in ipairs(internals) do
+		v:draw()
+	end
+		
+	love.graphics.setStencil(stencil)
+		
+	for k, v in ipairs(children) do
+		local col = loveframes.util.BoundingBox(self.x, v.x, self.y, v.y, self.width, v.width, self.height, v.height)
+		if col then
+			v:draw()
+		end
+	end
+		
+	love.graphics.setStencil()
+	
+	if not draw then
+		drawoverfunc(self)
+	end
+	
+end
+
+--[[---------------------------------------------------------
+	- func: mousepressed(x, y, button)
+	- desc: called when the player presses a mouse button
+--]]---------------------------------------------------------
+function multichoicelist:mousepressed(x, y, button)
+	
+	local visible = self.visible
+	
+	if not visible then
+		return
+	end
+	
+	local selfcol   = loveframes.util.BoundingBox(x, self.x, y, self.y, 1, self.width, 1, self.height)
+	local toplist   = self:IsTopList()
+	local internals = self.internals
+	local children  = self.children
+	
+	if not selfcol and self.canremove and button == "l" then
+		self:Close()
+	end
+	
+	if self.vbar and toplist then
+	
+		if button == "wu" then
+			internals[1].internals[1].internals[1]:Scroll(-5)
+		elseif button == "wd" then
+			internals[1].internals[1].internals[1]:Scroll(5)
+		end
+		
+	end
+	
+	for k, v in ipairs(internals) do
+		v:mousepressed(x, y, button)
+	end
+	
+	for k, v in ipairs(children) do
+		v:mousepressed(x, y, button)
+	end
+
+end
+
+--[[---------------------------------------------------------
+	- func: mousereleased(x, y, button)
+	- desc: called when the player releases a mouse button
+--]]---------------------------------------------------------
+function multichoicelist:mousereleased(x, y, button)
+	
+	local visible = self.visible
+	
+	if not visible then
+		return
+	end
+	
+	local internals = self.internals
+	local children  = self.children
+	
+	self.canremove = true
+	
+	for k, v in ipairs(internals) do
+		v:mousereleased(x, y, button)
+	end
+	
+	for k, v in ipairs(children) do
+		v:mousereleased(x, y, button)
+	end
+
+end
+
+--[[---------------------------------------------------------
+	- func: AddItem(object)
+	- desc: adds an item to the object
+--]]---------------------------------------------------------
+function multichoicelist:AddItem(object)
+	
+	if object.type ~= "multichoice-row" then
+		return
+	end
+	
+	object.parent = self
+	
+	table.insert(self.children, object)
+	
+	self:CalculateSize()
+	self:RedoLayout()
+	
+end
+
+--[[---------------------------------------------------------
+	- func: RemoveItem(object)
+	- desc: removes an item from the object
+--]]---------------------------------------------------------
+function multichoicelist:RemoveItem(object)
+
+	local children = self.children
+	
+	for k, v in ipairs(children) do
+	
+		if v == object then
+			table.remove(children, k)
+		end
+		
+	end
+	
+	self:CalculateSize()
+	self:RedoLayout()
+	
+end
+
+--[[---------------------------------------------------------
+	- func: CalculateSize()
+	- desc: calculates the size of the object's children
+--]]---------------------------------------------------------
+function multichoicelist:CalculateSize()
+
+	self.height = self.padding
+	
+	if self.list.listheight then
+		self.height = self.list.listheight
+	else
+		for k, v in ipairs(self.children) do
+			self.height = self.height + (v.height + self.spacing)
+		end
+	end
+
+	if self.height > love.graphics.getHeight() then
+		self.height = love.graphics.getHeight()
+	end
+	
+	local numitems   = #self.children
+	local height     = self.height
+	local padding    = self.padding
+	local spacing    = self.spacing
+	local itemheight = self.padding
+	local vbar       = self.vbar
+	local children   = self.children
+	
+	for k, v in ipairs(children) do
+		itemheight = itemheight + v.height + spacing
+	end
+		
+	self.itemheight = (itemheight - spacing) + padding
+		
+	if self.itemheight > height then
+		
+		self.extra = self.itemheight - height
+			
+		if not vbar then
+			local scroll = scrollbody:new(self, "vertical")
+			table.insert(self.internals, scroll)
+			self.vbar = true
+		end
+			
+	else
+			
+		if vbar then
+			self.internals[1]:Remove()
+			self.vbar = false
+			self.offsety = 0
+		end
+			
+	end
+	
+end
+
+--[[---------------------------------------------------------
+	- func: RedoLayout()
+	- desc: used to redo the layour of the object
+--]]---------------------------------------------------------
+function multichoicelist:RedoLayout()
+
+	local children = self.children
+	local padding  = self.padding
+	local spacing  = self.spacing
+	local starty   = padding
+	local vbar     = self.vbar
+	
+	if #children > 0 then
+	
+		for k, v in ipairs(children) do
+			
+			v.staticx = padding
+			v.staticy = starty
+				
+			if vbar then
+				v.width = (self.width - self.internals[1].width) - padding * 2
+				self.internals[1].staticx = self.width - self.internals[1].width
+				self.internals[1].height = self.height
+			else
+				v.width = self.width - padding * 2
+			end
+				
+			starty = starty + v.height
+			starty = starty + spacing
+			
+		end
+		
+	end
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetPadding(amount)
+	- desc: sets the object's padding
+--]]---------------------------------------------------------
+function multichoicelist:SetPadding(amount)
+
+	self.padding = amount
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetSpacing(amount)
+	- desc: sets the object's spacing
+--]]---------------------------------------------------------
+function multichoicelist:SetSpacing(amount)
+
+	self.spacing = amount
+	
+end
+
+function multichoicelist:Close()
+
+	self:Remove()
+	self.list.haslist = false
+		
+end
