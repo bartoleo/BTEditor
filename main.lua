@@ -15,13 +15,6 @@ require("lib/loveframes")
 
 --profiler = require "profiler"
 
--- states requires
-require("states/intro")
-require("states/editor")
-
--- classes requires
-require("classes/node")
-
 function love.load()
 
     -- Set filesystem identity
@@ -70,6 +63,12 @@ function love.load()
 		rawset(t, k, f)
 		return f
 	end })
+
+    gamestates = {}
+    loadfromdir(gamestates, "states", "lua", require)
+
+    classes = {}
+    loadfromdir(classes, "classes", "lua", require)
 
     --images = {}
     loadfromdir(images, "images/autoload", "png", love.graphics.newImage)

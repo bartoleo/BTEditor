@@ -10,7 +10,11 @@ function loadfromdir(targettable, path, extension, func)
       targettable[v] = {}
       loadfromdir(targettable[v], path .. "/" .. v, extension, func)
     elseif v:match(extmatch) then
-      targettable[v:sub(1, -5)] = func(path .. "/" .. v)
+      if func==require then
+        targettable[v:sub(1, -5)] = func(path .. "/" .. v:sub(1, -5))
+      else
+        targettable[v:sub(1, -5)] = func(path .. "/" .. v)
+      end
     end
   end
 end
