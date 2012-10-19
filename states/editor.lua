@@ -26,6 +26,9 @@ EDITOR.cameraworld={x1=0,y1=0,x2=0,y2=0}
 EDITOR.palette={}
 EDITOR.palettenodeheight = 60
 EDITOR.palettenodeselected = nil
+EDITOR.filename = ""
+EDITOR.firstdraw = true
+EDITOR.queue={}
 
 EDITOR.pointer=nil
 
@@ -42,27 +45,84 @@ function state:enter(pre, action, level,  ...)
   
   loveframes.config["DEBUG"]=false
   
+
+  EDITOR.title = "new Tree"
+  EDITOR.filename = ""
+
   EDITOR.gui = {}
 
   local object
+  
+  local list = loveframes.Create("list")
+  list:SetSize(790, 32)
+  list:SetDisplayType("horizontal")
+  list:SetPadding(5)
+  list:SetSpacing(5)
+  EDITOR.gui.toolbar = list
 
   object = loveframes.Create("imagebutton")
-  object:SetSize(24, 24)
-  object:SetImage(images.options)
+  object:SetImage(images.fileopen)
+  object:SizeToImage()
   object:SetText("")
   object.OnClick = state.clickEvent
-  EDITOR.gui.optionsbutton = object
+  list:AddItem(object)
+  EDITOR.gui.fileopenbutton = object
   local tooltip = loveframes.Create("tooltip")
   tooltip:SetObject(object)
   tooltip:SetPadding(0)
-  tooltip:SetOffsets(-30,30)
-  tooltip:SetText("Options")
+  tooltip:SetOffsets(-70,30)
+  tooltip:SetText("Open file")
 
   object = loveframes.Create("imagebutton")
-  object:SetSize(24, 24)
-  object:SetImage(images.bin)
+  object:SetImage(images.filesave)
+  object:SizeToImage()
   object:SetText("")
   object.OnClick = state.clickEvent
+  list:AddItem(object)
+  EDITOR.gui.filesavebutton = object
+  local tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-20,30)
+  tooltip:SetText("Save")
+
+  object = loveframes.Create("imagebutton")
+  object:SetImage(images.filesaveas)
+  object:SizeToImage()
+  object:SetText("")
+  object.OnClick = state.clickEvent
+  list:AddItem(object)
+  EDITOR.gui.filesaveasbutton = object
+  local tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-40,30)
+  tooltip:SetText("Save As")
+
+  object = loveframes.Create("text")
+  object:SetMaxWidth(32)
+  object:SetText(" ")
+  list:AddItem(object)
+  EDITOR.gui.divisor1 = object
+
+  object = loveframes.Create("checkbox",frame)
+  object:SetText("Autolayout")
+  object:SetChecked(true)
+  list:AddItem(object)
+  EDITOR.gui.chkautolayout=object
+  
+  object = loveframes.Create("text")
+  object:SetMaxWidth(32)
+  object:SetText(" ")
+  list:AddItem(object)
+  EDITOR.gui.divisor2 = object
+
+  object = loveframes.Create("imagebutton")
+  object:SetImage(images.bin)
+  object:SizeToImage()
+  object:SetText("")
+  object.OnClick = state.clickEvent
+  list:AddItem(object)
   EDITOR.gui.binbutton = object
   tooltip = loveframes.Create("tooltip")
   tooltip:SetObject(object)
@@ -72,12 +132,59 @@ function state:enter(pre, action, level,  ...)
 
   object = loveframes.Create("text")
   object:SetMaxWidth(100)
-  object:SetText("Title")
-  EDITOR.gui.lbl_title = object
+  object:SetText(" ")
+  list:AddItem(object)
+  EDITOR.gui.divisor3 = object
+
+  object = loveframes.Create("imagebutton")
+  object:SetText("")
+  object:SetImage(images.help)
+  object:SizeToImage()
+  object.OnClick = state.clickEvent
+  list:AddItem(object)
+  EDITOR.gui.helpbutton = object
+  local tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-20,30)
+  tooltip:SetText("Help")
+
+  object = loveframes.Create("imagebutton")
+  object:SetImage(images.options)
+  object:SetText("")
+  object:SizeToImage()
+  object.OnClick = state.clickEvent
+  list:AddItem(object)
+  EDITOR.gui.optionsbutton = object
+  local tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-30,30)
+  tooltip:SetText("Options")
+  EDITOR.gui.toolbar:RedoLayout ()
+
+  object = loveframes.Create("text")
+  object:SetMaxWidth(60)
+  object:SetText("Filename:")
+  EDITOR.gui.lbl_lblfilename = object
   
+  object = loveframes.Create("text")
+  object:SetMaxWidth(300)
+  object:SetText(EDITOR.filename)
+  EDITOR.gui.lbl_filename = object
+
+  object = loveframes.Create("text")
+  object:SetMaxWidth(40)
+  object:SetText("Title:")
+  EDITOR.gui.lbl_title = object
+ 
   object = loveframes.Create("textinput")
-  object:SetWidth(490)
+  object:SetWidth(300)
+  object:SetText(EDITOR.title)
   EDITOR.gui.txt_title = object
+
+  
+
 
   EDITOR.gui.txt_title:SetText ("prova")
   
@@ -108,6 +215,8 @@ function state:enter(pre, action, level,  ...)
   -- forcing alpha of dialogs to 200
   loveframes.skins.available[loveframes.config["ACTIVESKIN"]].controls.frame_body_color[4]=200
 
+  EDITOR.firstdraw = true
+
   -- enable input
   EDITOR.inputenabled = true
 
@@ -119,9 +228,23 @@ function state:leave()
 end
 
 function state:update(dt) 
+
+    if EDITOR.queue then
+      for i=#EDITOR.queue,1,-1 do
+        local v = EDITOR.queue[i]
+        if v=="loadfile" then
+          state:loadFile()
+        end
+        if v=="savefile" then
+          state:saveFile()
+        end
+        table.remove(EDITOR.queue,i)
+      end
+    end
+
     local _x,_y = love.mouse.getPosition()
     local _xc,_yc = EDITOR.camera:worldCoords(_x,_y)
-    if EDITOR.dolayout then
+    if EDITOR.dolayout and EDITOR.gui.chkautolayout:GetChecked() then
       state:layout()
     end
 
@@ -196,6 +319,12 @@ function state:draw()
     love.graphics.setColor(255,255,255,255)
     love.graphics.draw(EDITOR.pointer,_x,_y)
   end
+
+  if EDITOR.firstdraw then
+    EDITOR.firstdraw = false
+    EDITOR.gui.toolbar:RedoLayout ()
+  end
+
 end
 
 function state:keypressed(key, unicode)
@@ -209,49 +338,19 @@ function state:keypressed(key, unicode)
       state:getCameraWorld()
     end
 
-    if key=="a" then
-      if EDITOR.nodeselected then
-        local _node = classes.node:new("","SELECTOR","",nil,nil,nil,nil,nil,EDITOR.nodeselected,nil)
-        _node.name = EDITOR.nodeselected.name..".".._node.indexchild
-        _node:changeWidth()
-        state:addnode(_node)
-        EDITOR.dolayout=true
-      end
-    end
-    if key=="b" then
-      if EDITOR.nodeselected then
-        local _node = classes.node:new("","SEQUENCE","",nil,nil,nil,nil,nil,EDITOR.nodeselected,nil)
-        _node.name = EDITOR.nodeselected.name..".".._node.indexchild
-        _node:changeWidth()
-        state:addnode(_node)
-        EDITOR.dolayout=true
-      end
-    end
-    if key=="c" then
-      if EDITOR.nodeselected then
-        local _node = classes.node:new("","CONDITION","",nil,nil,nil,nil,nil,EDITOR.nodeselected,nil)
-        _node.name = EDITOR.nodeselected.name..".".._node.indexchild
-        _node:changeWidth()
-        state:addnode(_node)
-        EDITOR.dolayout=true
-      end
-    end
-    if key=="d" then
-      state:changePointer(nil)
-    end
-    if key=="e" then
-      state:changePointer(images.pointer)
-    end
-    if key=="f" then
-      state:changePointer(images.pointer_finger)
-    end
-    if key=="g" then
-      state:changePointer(images.pointer_down)
-    end
-    if key=="g" then
-      state:changePointer(images.pointer_move)
+    if key=="f1" then
+      state.createDialogHelp()
     end
 
+    if key=="f6" then
+      if EDITOR.nodeselected and EDITOR.palettenodeselected then
+        local _node = classes.node:new("",EDITOR.palettenodeselected.type,EDITOR.palettenodeselected.func,nil,nil,nil,nil,nil,EDITOR.nodeselected,nil)
+        _node.name = EDITOR.nodeselected.name..".".._node.indexchild
+        _node:changeWidth()
+        state:addnode(_node)
+        EDITOR.dolayout=true
+      end
+    end
     loveframes.keypressed(key, unicode)
   end
 
@@ -279,6 +378,8 @@ function state:mousepressed(x, y, button)
               _newzoom = 1
             end
             EDITOR.camera = Camera.new(_x,_y,_newzoom,EDITOR.camera.rot)
+            --local __x,__y = EDITOR.camera:worldCoords(x,y)
+            --EDITOR.camera = Camera.new(__x,__y,_newzoom,EDITOR.camera.rot)
             --EDITOR.camera = EDITOR.camera:move(_x,_y)
             state:getCameraWorld()
           end
@@ -289,6 +390,8 @@ function state:mousepressed(x, y, button)
             end
             EDITOR.camera = Camera.new(_x,_y,_newzoom,EDITOR.camera.rot)
             --EDITOR.camera = EDITOR.camera:move(_x,_y)
+            --local __x,__y = EDITOR.camera:worldCoords(x,y)
+            --EDITOR.camera = Camera.new(__x,__y,_newzoom,EDITOR.camera.rot)
             state:getCameraWorld()
           end
         end
@@ -361,8 +464,18 @@ function state:keyreleased(key)
 end
 
 function state.clickEvent(object, mousex , mousey)
-  if object==EDITOR.gui.button then
-    state.createDialog()
+  if object==EDITOR.gui.fileopenbutton then
+    state.createDialog(state.loadFileFromDialog,"open")
+  end
+  if object==EDITOR.gui.filesavebutton then
+    if EDITOR.filename~="" then
+      state:saveFile()
+    else
+      state.createDialog(state.saveFileFromDialog,"save")
+    end
+  end
+  if object==EDITOR.gui.filesaveasbutton then
+    state.createDialog(state.saveFileFromDialog,"save")
   end
   if object==EDITOR.gui.optionsbutton then
     state.createDialogOptions()
@@ -370,9 +483,12 @@ function state.clickEvent(object, mousex , mousey)
   if object==EDITOR.gui.binbutton then
     state:deleteNode(EDITOR.nodeselected,true)
   end
+  if object==EDITOR.gui.helpbutton then
+    state.createDialogHelp()
+  end
 end
 
-function state.createDialog(onClose)
+function state.createDialog(onClose,ptype,...)
 
     EDITOR.inputenabled = false
 
@@ -383,7 +499,42 @@ function state.createDialog(onClose)
     frame:Center()
     EDITOR.gui.dialog = frame
     EDITOR.gui.dialog.returnvalue = false
+
+    if ptype=="open" then
+      frame:SetName("Open File")
+      frame:SetSize(500, 150)
+      frame:Center()
+      local object = loveframes.Create("text",frame)
+      object:SetText("Filename to open : ")
+      object:SetPos(15, 65)
+      object = loveframes.Create("textinput", frame)
+      object:SetPos(135, 60)
+      object:SetWidth(300)
+      EDITOR.gui.dialog.txt_filename = object
+    end
+
+    if ptype=="save" then
+      frame:SetName("Save File")
+      frame:SetSize(500, 150)
+      frame:Center()
+      local object = loveframes.Create("text",frame)
+      object:SetText("Filename to save : ")
+      object:SetPos(15, 65)
+      object = loveframes.Create("textinput", frame)
+      object:SetPos(135, 60)
+      object:SetWidth(300)
+      EDITOR.gui.dialog.txt_filename = object
+    end
     
+    if ptype=="alert" then
+      frame:SetName("Warning!")
+      frame:SetSize(500, 150)
+      frame:Center()
+      local text = loveframes.Create("text",frame)
+      text:SetText(arg[1])
+      text:SetPos(5, 60)
+    end
+
     local object = loveframes.Create("button",frame)
     object:SetPos(frame:GetWidth()/2-10-object:GetWidth(),frame:GetHeight()-30)
     object:SetText("OK")
@@ -393,6 +544,37 @@ function state.createDialog(onClose)
     object:SetPos(frame:GetWidth()/2+10,frame:GetHeight()-30)
     object.OnClick = function() EDITOR.gui.dialog.returnvalue = false if (EDITOR.gui.dialog.OnClose) then EDITOR.gui.dialog.OnClose(EDITOR.gui.dialog) end EDITOR.gui.dialog:Remove() EDITOR.inputenabled = true end
 end
+
+function state.createDialogHelp()
+
+    EDITOR.inputenabled = false
+
+    local frame = loveframes.Create("frame")
+    frame:SetName("Help")
+    frame:SetModal (true)
+    frame:ShowCloseButton(false)
+    frame:SetSize(600, 430)
+    frame.OnClose = onClose
+    frame:Center()
+    EDITOR.gui.dialog = frame
+    EDITOR.gui.dialog.returnvalue = false
+    
+    local list1 = loveframes.Create("list", frame)
+    list1:SetPos(5, 30)
+    list1:SetSize(590, 365)
+    list1:SetPadding(5)
+    list1:SetSpacing(5)
+    local text1 = loveframes.Create("text")
+    text1:SetText("prova")
+    list1:AddItem(text1)
+    
+
+    local object = loveframes.Create("button",frame)
+    object:SetPos(frame:GetWidth()/2-object:GetWidth()/2,frame:GetHeight()-30)
+    object:SetText("Close")
+    object.OnClick = function() EDITOR.gui.dialog.returnvalue = true if (EDITOR.gui.dialog.OnClose) then EDITOR.gui.dialog.OnClose(EDITOR.gui.dialog) end EDITOR.gui.dialog:Remove() EDITOR.inputenabled = true end
+end
+
 
 function state.createDialogOptions()
 
@@ -666,10 +848,25 @@ function EDITOR.drawArrow(x1,y1,x2,y2)
 end
 
 function state:layoutgui()
-  EDITOR.gui.lbl_title:SetPos(5, 5)
-  EDITOR.gui.txt_title:SetPos(60, 5)
-  EDITOR.gui.optionsbutton:SetPos(screen_width-24-5, 5)
-  EDITOR.gui.binbutton:SetPos(screen_width-24-5-24-5, 5)
+  EDITOR.gui.lbl_lblfilename:SetPos(5, 40)
+  EDITOR.gui.lbl_filename:SetPos(70, 35)
+  EDITOR.gui.lbl_title:SetPos(400, 40)
+  EDITOR.gui.txt_title:SetPos(440, 35)
+  EDITOR.gui.toolbar:SetPos(0,0)
+  EDITOR.gui.divisor3:SetMaxWidth(0)
+  EDITOR.gui.toolbar:SetSize(screen_width,32)
+  EDITOR.gui.divisor3:SetMaxWidth(screen_width-360)
+  EDITOR.gui.toolbar:RedoLayout ()
+  EDITOR.firstdraw = true
+
+  --[[EDITOR.gui.fileopenbutton:SetPos(375, 5)
+  EDITOR.gui.filesavebutton:SetPos(375+24+5, 5)
+  EDITOR.gui.filesaveasbutton:SetPos(375+24*2+5*2, 5)
+  
+  EDITOR.gui.helpbutton:SetPos(screen_width-24*1-5*1, 5)
+  EDITOR.gui.optionsbutton:SetPos(screen_width-24*2-5*2, 5)
+  EDITOR.gui.binbutton:SetPos(screen_width-24*3-5*3, 5)
+  EDITOR.gui.chkautolayout:SetPos(screen_width-24*4-5*4-70, 5)]]--
 end
 
 function state:moveNode(pnode,pdx,pdy,precursive)
@@ -694,6 +891,7 @@ function state:changePointer(ppointer)
 end
 
 function state:drawDebug()
+  love.graphics.setColor(0,0,0,255)
   love.graphics.print(love.timer.getFPS(),5,screen_height-25)
   love.graphics.print(EDITOR.nodesize.." "..EDITOR.nodelevels,5,screen_height-15)
 end
@@ -789,4 +987,33 @@ function state:changePaletteNodeSelected(pnode)
        v.selected=false
      end
   end  
+end
+
+function state.funcnil()
+end
+
+function state.saveFileFromDialog()
+  if EDITOR.gui.dialog.returnvalue==true then
+    EDITOR.filename = EDITOR.gui.dialog.txt_filename:GetText()
+    table.insert(EDITOR.queue,"savefile")
+  end
+end
+
+function state.loadFileFromDialog()
+  if EDITOR.gui.dialog.returnvalue==true then
+    EDITOR.filename = EDITOR.gui.dialog.txt_filename:GetText()
+    table.insert(EDITOR.queue,"loadfile")
+  end
+end
+
+function state.saveFile()
+  if EDITOR.filename=="" then
+    state.createDialog(state.funcnil,"alert","choose filename!")
+  end
+end
+
+function state.loadFile()
+  if EDITOR.filename=="" then
+    state.createDialog(state.funcnil,"alert","choose filename!")
+  end
 end
