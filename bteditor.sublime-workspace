@@ -19,7 +19,7 @@
 			"file": "main.lua",
 			"settings":
 			{
-				"buffer_size": 1956,
+				"buffer_size": 1987,
 				"line_ending": "Windows"
 			}
 		},
@@ -43,7 +43,7 @@
 			"file": "states/editor.lua",
 			"settings":
 			{
-				"buffer_size": 8639,
+				"buffer_size": 13681,
 				"line_ending": "Windows"
 			}
 		},
@@ -51,7 +51,7 @@
 			"file": "classes/node.lua",
 			"settings":
 			{
-				"buffer_size": 2365,
+				"buffer_size": 3689,
 				"line_ending": "Windows"
 			}
 		},
@@ -59,7 +59,7 @@
 			"file": "lib/SECS.lua",
 			"settings":
 			{
-				"buffer_size": 1423,
+				"buffer_size": 1425,
 				"line_ending": "Unix"
 			}
 		},
@@ -67,7 +67,7 @@
 			"file": "lib/utils.lua",
 			"settings":
 			{
-				"buffer_size": 10419,
+				"buffer_size": 10540,
 				"line_ending": "Windows"
 			}
 		},
@@ -76,6 +76,14 @@
 			"settings":
 			{
 				"buffer_size": 1226,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "README.md",
+			"settings":
+			{
+				"buffer_size": 99,
 				"line_ending": "Windows"
 			}
 		}
@@ -144,6 +152,7 @@
 	},
 	"file_history":
 	[
+		"/C/leo/love/BTEditor/bteditor.sublime-project",
 		"/C/Users/leo/AppData/Local/Temp/7zO171B.tmp/main.lua",
 		"/C/Users/leo/AppData/Local/Temp/7zODFC9.tmp/lovefs.lua",
 		"/C/Users/leo/AppData/Local/Temp/7zO389A.tmp/init.lua",
@@ -222,6 +231,13 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			";",
+			".x",
+			"addnode",
+			"node",
+			"clickeve",
+			".node:new",
+			"node:neclass",
 			".y",
 			"pparent",
 			".y",
@@ -346,7 +362,7 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 8,
 			"sheets":
 			[
 				{
@@ -354,15 +370,15 @@
 					"file": "main.lua",
 					"settings":
 					{
-						"buffer_size": 1956,
+						"buffer_size": 1987,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								132,
-								138
+								1591,
+								1447
 							]
 						],
 						"settings":
@@ -407,7 +423,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 7,
+							"function_name_status_row": 66,
 							"gjslint_ignore":
 							[
 								110
@@ -459,7 +475,7 @@
 							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1029.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -702,15 +718,15 @@
 					"file": "states/editor.lua",
 					"settings":
 					{
-						"buffer_size": 8639,
+						"buffer_size": 13681,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								9780,
+								9780
 							]
 						],
 						"settings":
@@ -755,7 +771,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 0,
+							"function_name_status_row": 352,
 							"gjslint_ignore":
 							[
 								110
@@ -809,7 +825,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 7040.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -819,15 +835,15 @@
 					"file": "classes/node.lua",
 					"settings":
 					{
-						"buffer_size": 2365,
+						"buffer_size": 3689,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1363,
-								1363
+								588,
+								588
 							]
 						],
 						"settings":
@@ -872,7 +888,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 50,
+							"function_name_status_row": 19,
 							"gjslint_ignore":
 							[
 								110
@@ -926,7 +942,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 639.0,
+						"translation.y": 129.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -936,15 +952,15 @@
 					"file": "lib/SECS.lua",
 					"settings":
 					{
-						"buffer_size": 1423,
+						"buffer_size": 1425,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1277,
-								1277
+								1059,
+								1059
 							]
 						],
 						"settings":
@@ -989,7 +1005,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 35,
+							"function_name_status_row": 23,
 							"gjslint_ignore":
 							[
 								110
@@ -1041,7 +1057,7 @@
 							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 240.0,
+						"translation.y": 209.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -1051,15 +1067,15 @@
 					"file": "lib/utils.lua",
 					"settings":
 					{
-						"buffer_size": 10419,
+						"buffer_size": 10540,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1070,
-								1120
+								768,
+								228
 							]
 						],
 						"settings":
@@ -1104,7 +1120,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 33,
+							"function_name_status_row": 5,
 							"gjslint_ignore":
 							[
 								110
@@ -1273,6 +1289,121 @@
 							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "README.md",
+					"settings":
+					{
+						"buffer_size": 99,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								99,
+								99
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"function_name_status_row": 5,
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/Markdown/Markdown.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
