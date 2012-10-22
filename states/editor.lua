@@ -27,7 +27,7 @@ EDITOR.palette={}
 EDITOR.palettenodeheight = 60
 EDITOR.palettenodeselected = nil
 EDITOR.filename = ""
-EDITOR.firstdraw = true
+EDITOR.firstdraw = 2
 EDITOR.queue={}
 
 EDITOR.pointer=nil
@@ -70,7 +70,7 @@ function state:enter(pre, action, level,  ...)
   local tooltip = loveframes.Create("tooltip")
   tooltip:SetObject(object)
   tooltip:SetPadding(0)
-  tooltip:SetOffsets(-70,30)
+  tooltip:SetOffsets(0,30)
   tooltip:SetText("Open file")
 
   object = loveframes.Create("imagebutton")
@@ -83,7 +83,7 @@ function state:enter(pre, action, level,  ...)
   local tooltip = loveframes.Create("tooltip")
   tooltip:SetObject(object)
   tooltip:SetPadding(0)
-  tooltip:SetOffsets(-20,30)
+  tooltip:SetOffsets(-10,30)
   tooltip:SetText("Save")
 
   object = loveframes.Create("imagebutton")
@@ -96,7 +96,7 @@ function state:enter(pre, action, level,  ...)
   local tooltip = loveframes.Create("tooltip")
   tooltip:SetObject(object)
   tooltip:SetPadding(0)
-  tooltip:SetOffsets(-40,30)
+  tooltip:SetOffsets(-20,30)
   tooltip:SetText("Save As")
 
   object = loveframes.Create("text")
@@ -127,7 +127,7 @@ function state:enter(pre, action, level,  ...)
   tooltip = loveframes.Create("tooltip")
   tooltip:SetObject(object)
   tooltip:SetPadding(0)
-  tooltip:SetOffsets(-150,30)
+  tooltip:SetOffsets(-70,30)
   tooltip:SetText("Deletes node and children")
 
   object = loveframes.Create("text")
@@ -183,8 +183,6 @@ function state:enter(pre, action, level,  ...)
   object:SetText(EDITOR.title)
   EDITOR.gui.txt_title = object
 
-  
-
 
   EDITOR.gui.txt_title:SetText ("prova")
   
@@ -193,7 +191,7 @@ function state:enter(pre, action, level,  ...)
   EDITOR.nodes = {}
   EDITOR.nodekeys = {}
   EDITOR.nodesize = 0
-  state:addnode(classes.node:new("","START","","__start__",screen_middlex,32,nil,nil,nil,1))
+  state:addnode(classes.node:new("","Start","","__start__",screen_middlex,32,nil,nil,nil,1))
   EDITOR.dolayout=true
 
   EDITOR.camera = Camera.new(screen_middlex+EDITOR.palettewidth/2,screen_middley-EDITOR.toolbarheight-5, 1, 0)
@@ -215,7 +213,7 @@ function state:enter(pre, action, level,  ...)
   -- forcing alpha of dialogs to 200
   loveframes.skins.available[loveframes.config["ACTIVESKIN"]].controls.frame_body_color[4]=200
 
-  EDITOR.firstdraw = true
+  EDITOR.firstdraw = 2
 
   -- enable input
   EDITOR.inputenabled = true
@@ -233,10 +231,16 @@ function state:update(dt)
       for i=#EDITOR.queue,1,-1 do
         local v = EDITOR.queue[i]
         if v=="loadfile" then
-          state:loadFile()
+          local status, err = pcall(state.loadFile)
+          if status == false then
+            state.createDialog(state.funcnil,"alert",err)
+          end
         end
         if v=="savefile" then
-          state:saveFile()
+          local status, err = pcall(state.saveFile)
+          if status == false then
+            state.createDialog(state.funcnil,"alert",err)
+          end
         end
         table.remove(EDITOR.queue,i)
       end
@@ -320,8 +324,8 @@ function state:draw()
     love.graphics.draw(EDITOR.pointer,_x,_y)
   end
 
-  if EDITOR.firstdraw then
-    EDITOR.firstdraw = false
+  if EDITOR.firstdraw>0 then
+    EDITOR.firstdraw = EDITOR.firstdraw - 1
     EDITOR.gui.toolbar:RedoLayout ()
   end
 
@@ -469,7 +473,7 @@ function state.clickEvent(object, mousex , mousey)
   end
   if object==EDITOR.gui.filesavebutton then
     if EDITOR.filename~="" then
-      state:saveFile()
+      table.insert(EDITOR.queue,"savefile")
     else
       state.createDialog(state.saveFileFromDialog,"save")
     end
@@ -510,6 +514,8 @@ function state.createDialog(onClose,ptype,...)
       object = loveframes.Create("textinput", frame)
       object:SetPos(135, 60)
       object:SetWidth(300)
+      object:SetText(EDITOR.filename)
+      object:SetFocus()
       EDITOR.gui.dialog.txt_filename = object
     end
 
@@ -523,6 +529,8 @@ function state.createDialog(onClose,ptype,...)
       object = loveframes.Create("textinput", frame)
       object:SetPos(135, 60)
       object:SetWidth(300)
+      object:SetText(EDITOR.filename)
+      object:SetFocus()
       EDITOR.gui.dialog.txt_filename = object
     end
     
@@ -533,6 +541,14 @@ function state.createDialog(onClose,ptype,...)
       local text = loveframes.Create("text",frame)
       text:SetText(arg[1])
       text:SetPos(5, 60)
+    end
+
+    if ptype=="save" or ptype=="open" then
+      local object = loveframes.Create("button",frame)
+      object:SetText("Set SaveDirectory as path")
+      object:SetPos(135,90)
+      object:SetSize(150,20)
+      object.OnClick = function() EDITOR.gui.dialog.txt_filename:SetText( love.filesystem.getSaveDirectory()) end
     end
 
     local object = loveframes.Create("button",frame)
@@ -857,7 +873,7 @@ function state:layoutgui()
   EDITOR.gui.toolbar:SetSize(screen_width,32)
   EDITOR.gui.divisor3:SetMaxWidth(screen_width-360)
   EDITOR.gui.toolbar:RedoLayout ()
-  EDITOR.firstdraw = true
+  EDITOR.firstdraw = 2
 
   --[[EDITOR.gui.fileopenbutton:SetPos(375, 5)
   EDITOR.gui.filesavebutton:SetPos(375+24+5, 5)
@@ -892,8 +908,9 @@ end
 
 function state:drawDebug()
   love.graphics.setColor(0,0,0,255)
-  love.graphics.print(love.timer.getFPS(),5,screen_height-25)
+  love.graphics.print(love.timer.getFPS().." "..love.filesystem.getAppdataDirectory(),5,screen_height-25)
   love.graphics.print(EDITOR.nodesize.." "..EDITOR.nodelevels,5,screen_height-15)
+
 end
 
 function state:getCameraWorld()
@@ -972,10 +989,10 @@ function state:deleteNode(pnode,external)
 end
 
 function state:loadPalette()
-  table.insert(EDITOR.palette, classes.node:new("","SELECTOR","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*0,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","SEQUENCE","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*1,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","CONDITION","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*2,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","ACTION","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*3,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Selector","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*0,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Sequence","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*1,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Condition","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*2,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Action","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*3,nil,nil,nil,nil))
 end
 
 function state:changePaletteNodeSelected(pnode)
@@ -995,6 +1012,7 @@ end
 function state.saveFileFromDialog()
   if EDITOR.gui.dialog.returnvalue==true then
     EDITOR.filename = EDITOR.gui.dialog.txt_filename:GetText()
+    EDITOR.gui.lbl_filename:SetText(EDITOR.filename)
     table.insert(EDITOR.queue,"savefile")
   end
 end
@@ -1002,6 +1020,7 @@ end
 function state.loadFileFromDialog()
   if EDITOR.gui.dialog.returnvalue==true then
     EDITOR.filename = EDITOR.gui.dialog.txt_filename:GetText()
+    EDITOR.gui.lbl_filename:SetText(EDITOR.filename)
     table.insert(EDITOR.queue,"loadfile")
   end
 end
@@ -1009,6 +1028,14 @@ end
 function state.saveFile()
   if EDITOR.filename=="" then
     state.createDialog(state.funcnil,"alert","choose filename!")
+    return false
+  end
+  local tree = state.serializeTree()
+  if love.filesystem.write(pfile,json.encode(_table)) then
+    return true
+  else
+    error("Error saving file "..EDITOR.filename)
+    return false
   end
 end
 
@@ -1016,4 +1043,33 @@ function state.loadFile()
   if EDITOR.filename=="" then
     state.createDialog(state.funcnil,"alert","choose filename!")
   end
+end
+
+function state.serializeTree()
+  local tree={}
+  tree.title = EDITOR.title
+  tree.autolayout = EDITOR.gui.chkautolayout:GetChecked()
+  tree.nodes={}
+  for i,v in ipairs(EDITOR.nodes) do
+    tree = state.serializeNode(tree.nodes,v)
+  end
+  return tree
+end
+
+function state.serializeNode(pnodeparent, pnode)
+  local node = {}
+  for k,v in pairs(pnode) do
+    if type(v)=="string" or type(v)=="number"  then
+      node.k = v
+    elseif k == "children" then
+      for ii,vv in ipairs(pnode.children) do
+        node = state.serializeNode(node,vv)
+      end
+    end
+  end
+  if pnodeparent.children == nil then
+    pnodeparent.children={}
+  end
+  table.insert(pnodeparent.children,node)
+  return pnodeparent
 end

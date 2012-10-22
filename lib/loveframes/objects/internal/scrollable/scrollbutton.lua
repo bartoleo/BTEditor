@@ -5,7 +5,6 @@
 
 -- scrollbutton clas
 scrollbutton = class("scrollbutton", base)
-scrollbutton:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -20,6 +19,9 @@ function scrollbutton:initialize(scrolltype)
 	self.down           = false
 	self.internal       = true
 	self.OnClick        = function() end
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 end
 
@@ -90,8 +92,8 @@ function scrollbutton:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

@@ -5,7 +5,6 @@
 
 -- tooltip clas
 tooltip = class("tooltip", base)
-tooltip:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -34,6 +33,9 @@ function tooltip:initialize(object, text, width)
 	self.text:SetText(text or "")
 	self.text:SetWidth(width or 0)
 	self.text:SetPos(0, 0)
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 	table.insert(loveframes.base.internals, self)
 	
@@ -139,8 +141,8 @@ function tooltip:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 	
 	if show then
 	

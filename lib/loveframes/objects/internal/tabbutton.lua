@@ -5,7 +5,6 @@
 
 -- tabbutton class
 tabbutton = class("tabbutton", base)
-tabbutton:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -34,6 +33,9 @@ function tabbutton:initialize(parent, text, tabnumber, tip, image)
 	if image then
 		self:SetImage(image)
 	end
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 end
 
@@ -93,8 +95,8 @@ function tabbutton:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

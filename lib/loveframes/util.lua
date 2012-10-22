@@ -62,7 +62,7 @@ function loveframes.util.GetCollisions(object, t)
 		if col == true and object.collide ~= false then
 			if object.clickbounds then
 				local clickcol = loveframes.util.BoundingBox(x, object.clickbounds.x, y, object.clickbounds.y, 1, object.clickbounds.width, 1, object.clickbounds.height)
-				if clickcol == true then
+				if clickcol then
 					table.insert(t, object)
 				end
 			else
@@ -72,22 +72,22 @@ function loveframes.util.GetCollisions(object, t)
 		
 	end
 	
-	-- check for internals
-	if object.internals then
+	-- check for children
+	if object.children then
 	
-		for k, v in ipairs(object.internals) do
-			if v.visible == true and v.type ~= "tooltip" then
+		for k, v in ipairs(object.children) do
+			if v.visible then
 				loveframes.util.GetCollisions(v, t)
 			end
 		end
 		
 	end
 	
-	-- check for children
-	if object.children then
+	-- check for internals
+	if object.internals then
 	
-		for k, v in ipairs(object.children) do
-			if v.visible == true then
+		for k, v in ipairs(object.internals) do
+			if v.visible and v.type ~= "tooltip" then
 				loveframes.util.GetCollisions(v, t)
 			end
 		end
@@ -266,5 +266,34 @@ function loveframes.util.RemoveAll()
 
 	loveframes.base.children = {}
 	loveframes.base.internals = {}
+	
+end
+
+--[[---------------------------------------------------------
+	- func: loveframes.util.TableHasKey(table, key)
+	- desc: checks to see if a table has a specific key
+--]]---------------------------------------------------------
+function loveframes.util.TableHasKey(table, key)
+
+	local haskey = false
+	
+	for k, v in pairs(table) do
+		if k == key then
+			haskey = true
+			break
+		end
+	end
+	
+	return haskey
+	
+end
+
+--[[---------------------------------------------------------
+	- func: loveframes.util.Error(message)
+	- desc: displays a formatted error message
+--]]---------------------------------------------------------
+function loveframes.util.Error(message)
+
+	error("[Love Frames] " ..message)
 	
 end

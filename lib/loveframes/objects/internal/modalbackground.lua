@@ -5,7 +5,6 @@
 
 -- modalbackground class
 modalbackground = class("modalbackground", base)
-modalbackground:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -28,6 +27,9 @@ function modalbackground:initialize(object)
 		self:Remove()
 	end
 	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
+	
 end
 
 --[[---------------------------------------------------------
@@ -45,8 +47,17 @@ function modalbackground:update(dt)
 		end
 	end
 	
-	local object = self.object
-	local update = self.Update
+	local object       = self.object
+	local update       = self.Update
+	local base         = loveframes.base
+	local basechildren = base.children
+	
+	if #basechildren > 1 then
+		if basechildren[#basechildren - 1] ~= self then
+			self:Remove()
+			table.insert(basechildren, self)
+		end
+	end
 	
 	if not object:IsActive() then
 		self:Remove()
@@ -78,8 +89,8 @@ function modalbackground:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

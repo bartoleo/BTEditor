@@ -5,7 +5,6 @@
 
 -- columnlistarea class
 columnlistarea = class("columnlistarea", base)
-columnlistarea:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -31,6 +30,9 @@ function columnlistarea:initialize(parent)
 	self.internals          = {}
 	self.children           = {}
 
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
+	
 end
 
 --[[---------------------------------------------------------
@@ -106,8 +108,8 @@ function columnlistarea:draw()
 	local internals     = self.internals
 	local children      = self.children
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

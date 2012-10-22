@@ -5,7 +5,6 @@
 
 -- checkbox class
 checkbox = class("checkbox", base)
-checkbox:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -124,8 +123,8 @@ function checkbox:draw()
 	local internals     = self.internals
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)
@@ -198,6 +197,30 @@ function checkbox:mousereleased(x, y, button)
 		
 	end
 		
+end
+
+--[[---------------------------------------------------------
+	- func: keypressed(key)
+	- desc: called when the player presses a key
+--]]---------------------------------------------------------
+function checkbox:keypressed(key, unicode)
+
+	local checked        = self.checked
+	local onchanged      = self.OnChanged
+	local selectedobject = loveframes.selectedobject
+	
+	if key == "return" and selectedobject == self then
+		if checked then
+			self.checked = false
+		else
+			self.checked = true
+		end
+		
+		if onchanged then
+			onchanged(self)
+		end
+	end
+
 end
 
 --[[---------------------------------------------------------

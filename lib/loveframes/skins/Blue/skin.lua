@@ -335,7 +335,7 @@ function skin.DrawButton(object)
 	local bordernohovercolor = skin.controls.button_border_down_color
 	local gradientcolor      = {}
 	
-	if down == true then
+	if down then
 			
 		-- button body
 		love.graphics.setColor(unpack(bodydowncolor))
@@ -353,7 +353,7 @@ function skin.DrawButton(object)
 		love.graphics.setColor(unpack(borderdowncolor))
 		skin.OutlinedRectangle(x, y, width, height)
 		
-	elseif hover == true then
+	elseif hover then
 			
 		-- button body
 		love.graphics.setColor(unpack(bodyhovercolor))
@@ -769,8 +769,6 @@ function skin.DrawTabButton(object)
 		imagewidth = image:getWidth()
 		imageheight = image:getHeight()
 	end
-		
-	print(tabnumber, ptabnumber)
 	
 	if tabnumber == ptabnumber then
 		
@@ -922,7 +920,7 @@ function skin.DrawMultiChoiceRow(object)
 	
 	love.graphics.setFont(font)
 	
-	if object.hover == true then
+	if object.hover then
 		love.graphics.setColor(unpack(bodyhovecolor))
 		love.graphics.rectangle("fill", x, y, width, height)
 		love.graphics.setColor(unpack(texthovercolor))

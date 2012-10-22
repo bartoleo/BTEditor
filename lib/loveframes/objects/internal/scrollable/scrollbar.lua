@@ -42,6 +42,9 @@ function scrollbar:initialize(parent, bartype)
 		self.height 	= self.parent.height
 	end
 	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
+	
 end
 
 --[[---------------------------------------------------------
@@ -207,8 +210,8 @@ function scrollbar:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

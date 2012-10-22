@@ -7,9 +7,9 @@
 	-- note: the text wrapping of this object is
 			 experimental and not final
 --]]------------------------------------------------
+
 -- text class
 text = class("text", base)
-text:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -24,7 +24,7 @@ function text:initialize()
 	self.height         = 5
 	self.maxw           = 0
 	self.lines          = 1
-	self.text           = {}
+	self.formattedtext  = {}
 	self.original       = {}
 	self.internal       = false
 	
@@ -79,8 +79,8 @@ function text:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)
@@ -130,7 +130,8 @@ function text:SetText(t)
 	local inserts = {}
 	local tdata, prevcolor
 	
-	self.text = {}
+	self.text          = ""
+	self.formattedtext = {}
 	
 	if dtype == "string" then
 		tdata = {t}
@@ -157,7 +158,7 @@ function text:SetText(t)
 			prevcolor = v
 		elseif dtype == "number" then
 			
-			table.insert(self.text, {color = prevcolor, text = tostring(v)})
+			table.insert(self.formattedtext, {color = prevcolor, text = tostring(v)})
 			
 		elseif dtype == "string" then
 			
@@ -167,7 +168,7 @@ function text:SetText(t)
 			local parts = loveframes.util.SplitString(v, " ")
 					
 			for i, j in ipairs(parts) do
-				table.insert(self.text, {color = prevcolor, text = j})
+				table.insert(self.formattedtext, {color = prevcolor, text = j})
 			end
 			
 		end
@@ -176,7 +177,7 @@ function text:SetText(t)
 	
 	if maxw > 0 then
 	
-		for k, v in ipairs(self.text) do
+		for k, v in ipairs(self.formattedtext) do
 					
 			local data  = v.text
 			local width = font:getWidth(data)
@@ -186,7 +187,7 @@ function text:SetText(t)
 			
 			if width > maxw then
 					
-				table.remove(self.text, k)
+				table.remove(self.formattedtext, k)
 				
 				for n=1, #data do
 							
@@ -219,10 +220,10 @@ function text:SetText(t)
 	end
 	
 	for k, v in ipairs(inserts) do
-		table.insert(self.text, v.key, {color = v.color, text = v.text})
+		table.insert(self.formattedtext, v.key, {color = v.color, text = v.text})
 	end
 	
-	local textdata       = self.text
+	local textdata       = self.formattedtext
 	local maxw           = self.maxw
 	local font           = self.font
 	local height         = font:getHeight("a")
@@ -242,6 +243,8 @@ function text:SetText(t)
 		
 		if type(text) == "string" then
 		
+			self.text = self.text .. text
+			
 			local width = font:getWidth(text)
 			totalwidth = totalwidth + width
 			
@@ -311,12 +314,22 @@ function text:GetText()
 end
 
 --[[---------------------------------------------------------
+	- func: GetFormattedText()
+	- desc: gets the object's formatted text
+--]]---------------------------------------------------------
+function text:GetFormattedText()
+
+	return self.formattedtext
+	
+end
+
+--[[---------------------------------------------------------
 	- func: Format()
 	- desc: formats the text
 --]]---------------------------------------------------------
 function text:DrawText()
 
-	local textdata = self.text
+	local textdata = self.formattedtext
 	local font     = self.font
 	local x        = self.x
 	local y        = self.y

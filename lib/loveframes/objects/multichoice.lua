@@ -5,7 +5,6 @@
 
 -- multichoice class
 multichoice = class("multichoice", base)
-multichoice:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -43,12 +42,13 @@ function multichoice:update(dt)
 	end
 	
 	local parent = self.parent
+	local base   = loveframes.base
 	local update = self.Update
 	
 	self:CheckHover()
 	
 	-- move to parent if there is a parent
-	if parent then
+	if parent ~= base then
 		self.x = self.parent.x + self.staticx
 		self.y = self.parent.y + self.staticy
 	end
@@ -80,8 +80,8 @@ function multichoice:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

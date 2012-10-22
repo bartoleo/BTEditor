@@ -88,6 +88,9 @@ function scrollbody:initialize(parent, bartype)
 		
 	end
 	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
+	
 end
 
 --[[---------------------------------------------------------
@@ -150,8 +153,8 @@ function scrollbody:draw()
 	local drawcount     = loveframes.drawcount
 	local internals     = self.internals
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

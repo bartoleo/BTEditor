@@ -1,6 +1,30 @@
 ================================================
+Version 0.9.4 - Alpha (October 22 - 2012)
+================================================
+[ADDED] a new base method: SetDrawOrder()
+[ADDED] a new base method: GetDrawOrder()
+[ADDED] a new text method: GetFormattedText()
+[ADDED] a new text input method: SetEditable(bool)
+[ADDED] a new text input method: GetEditable()
+[ADDED] a new text input method: GetUsable()
+[ADDED] a new text input method: GetUnusable()
+[ADDED] a new system for creating and applying templates to objects
+
+[FIXED] a few incorrent entries in the changelog and added a few entries that were meant to be in the last upadte's changelog
+[FIXED] an error that occured when clicking on a frame that was parented to another frame
+[FIXED] frames not being positioned properly if they were parented to another object
+[FIXED] modal background object not drawing over umodaled objects in certain situations
+[FIXED] an error that would occur when a multichoice list object would become scrollable
+[FIXED] an error that would occur when a the column list object had no columns
+[FIXED] multichoice object not positioning itself properly if it's parent was the base object
+
+[CHANGED] text:GetText() now returns a string of the object's text
+[CHANGED] parented frames can no longer be modaled
+
+================================================
 Version 0.9.3.2 - Alpha (Spetember 29 - 2012)
 ================================================
+[ADDED] a new base method: SetDrawOrder()
 [ADDED] a new text input method: SetMultiline(bool)
 [ADDED] a new text input method: GetVerticalScrollBody()
 [ADDED] a new text input method: GetHorizontalScrollBody()
@@ -8,7 +32,6 @@ Version 0.9.3.2 - Alpha (Spetember 29 - 2012)
 [ADDED] a new text input method: HasVerticalScrollBar()
 [ADDED] a new text input method: HasHorizontalScrollBar()
 [ADDED] a new text input method: GetFont()
-[ADDED] a new text input method: GetTextColor()
 [ADDED] a new text input method: GetLineNumbersPanel()
 [ADDED] a new text input method: GetMultiline()
 [ADDED] a new text input method: GetTextX()
@@ -19,6 +42,7 @@ Version 0.9.3.2 - Alpha (Spetember 29 - 2012)
 [ADDED] a new text input method: GetOffsetY()
 [ADDED] a new text input method: GetIndicatorX()
 [ADDED] a new text input method: GetIndicatorY()
+[ADDED] a new text input method: SetLineNumbersEnabled(enabled)
 [ADDED] a new text input method: GetLineNumbersEnabled()
 [ADDED] a new text input method: GetItemWidth()
 [ADDED] a new text input method: GetItemHeight()
@@ -57,7 +81,6 @@ Version 0.9.3.2 - Alpha (Spetember 29 - 2012)
 [CHANGED] the column list row object's text is no longer drawn internally by the object and should now be draw within the object's skin drawing function
 
 [REMOVED] textinput:SetTextColor(color)
-[REMOVED] textinput:GetTextColor()
 [REMOVED] columnlistrow:SetTextColor()
 
 ================================================

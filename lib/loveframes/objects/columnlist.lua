@@ -5,7 +5,6 @@
 
 -- columnlist class
 columnlist = class("columnlist", base)
-columnlist:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -94,8 +93,8 @@ function columnlist:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)
@@ -183,8 +182,8 @@ function columnlist:AdjustColumns()
 	local width = self.width
 	local bar   = self.internals[1].bar
 	
-	if bar == true then
-		width = width - 16
+	if bar then
+		width = width - self.internals[1].internals[1].width
 	end
 	
 	local children    = self.children
@@ -244,11 +243,11 @@ function columnlist:GetColumnSize()
 
 	local children    = self.children
 	local numchildren = #self.children
-	local column      = self.children[1]
-	local colwidth    = column.width
-	local colheight   = column.height
 	
 	if numchildren > 0 then
+		local column    = self.children[1]
+		local colwidth  = column.width
+		local colheight = column.height
 		return colwidth, colheight
 	else
 		return 0, 0

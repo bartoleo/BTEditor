@@ -25,6 +25,9 @@ function scrollarea:initialize(parent, bartype)
 	
 	table.insert(self.internals, scrollbar:new(self, bartype))
 	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
+	
 end
 
 --[[---------------------------------------------------------
@@ -138,8 +141,8 @@ function scrollarea:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

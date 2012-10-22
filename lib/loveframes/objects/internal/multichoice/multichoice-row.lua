@@ -5,7 +5,6 @@
 
 -- multichoicerow class
 multichoicerow = class("multichoicerow", base)
-multichoicerow:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -21,6 +20,9 @@ function multichoicerow:initialize()
 	self.internal       = true
 	self.down           = false
 	self.canclick       = false
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 end
 
@@ -88,10 +90,9 @@ function multichoicerow:draw()
 	local skin          = skins[selfskin] or skins[skinindex]
 	local drawfunc      = skin.DrawMultiChoiceRow or skins[defaultskin].DrawMultiChoiceRow
 	local draw          = self.Draw
-	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)
@@ -147,6 +148,21 @@ function multichoicerow:mousereleased(x, y, button)
 
 end
 
+--[[---------------------------------------------------------
+	- func: keypressed(key)
+	- desc: called when the player presses a key
+--]]---------------------------------------------------------
+function multichoicerow:keypressed(key, unicode)
+
+	local text           = self.text
+	local selectedobject = loveframes.selectedobject
+	
+	if key == "return" and selectedobject == self then
+		self.parent.list:SelectChoice(text)
+	end
+
+end
+	
 --[[---------------------------------------------------------
 	- func: SetText(text)
 	- desc: sets the object's text

@@ -5,7 +5,6 @@
 
 -- sliderbutton class
 sliderbutton = class("sliderbutton", base)
-sliderbutton:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -27,6 +26,9 @@ function sliderbutton:initialize(parent)
 	self.down           = false
 	self.dragging       = false
 	self.parent         = parent
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 end
 
@@ -172,8 +174,8 @@ function sliderbutton:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

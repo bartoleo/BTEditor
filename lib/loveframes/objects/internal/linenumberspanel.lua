@@ -5,7 +5,6 @@
 
 -- linenumberspanel class
 linenumberspanel = class("linenumberspanel", base)
-linenumberspanel:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -21,6 +20,9 @@ function linenumberspanel:initialize(parent)
 	self.staticx        = 0
 	self.staticy        = 0
 	self.internal       = true
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 end
 
@@ -95,8 +97,8 @@ function linenumberspanel:draw()
 		stencilfunc = function() love.graphics.rectangle("fill", self.parent.x, self.parent.y, self.width, self.parent.height - 16) end
 	end
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 	
 	love.graphics.setStencil(stencilfunc)
 	

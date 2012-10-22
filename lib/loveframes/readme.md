@@ -15,4 +15,4 @@ Created by Kenny Shields
 
 **Third Party Libraries**
 
-- middleclass: kikito
+- middleclass: kikito - https://github.com/kikito/middleclass

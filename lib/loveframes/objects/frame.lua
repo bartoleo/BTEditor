@@ -5,7 +5,7 @@
 
 -- frame class
 frame = class("frame", base)
-frame:include(loveframes.templates.default)
+
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -73,6 +73,7 @@ function frame:update(dt)
 	local draworder         = self.draworder
 	local children          = self.children
 	local internals         = self.internals
+	local parent            = self.parent
 	local update            = self.Update
 	
 	close:SetPos(self.width - 20, 4)
@@ -80,8 +81,10 @@ function frame:update(dt)
 	
 	-- dragging check
 	if dragging then
-		self.x = x - self.clickx
-		self.y = y - self.clicky
+		if parent == base then
+			self.x = x - self.clickx
+			self.y = y - self.clicky
+		end
 	end
 	
 	-- if screenlocked then keep within screen
@@ -107,7 +110,7 @@ function frame:update(dt)
 		
 	end
 	
-	if modal == true then
+	if modal then
 		
 		local tip = false
 		local key = 0
@@ -130,6 +133,11 @@ function frame:update(dt)
 			self:MakeTop()
 		end
 		
+	end
+	
+	if parent ~= base then
+		self.x = self.parent.x + self.staticx
+		self.y = self.parent.y + self.staticy
 	end
 	
 	for k, v in ipairs(internals) do
@@ -169,8 +177,8 @@ function frame:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)
@@ -206,13 +214,14 @@ function frame:mousepressed(x, y, button)
 	local selfcol   = loveframes.util.BoundingBox(x, self.x, y, self.y, 1, self.width, 1, self.height)
 	local internals = self.internals
 	local children  = self.children
+	local dragging  = self.dragging
 	
 	if selfcol then
 	
 		local top = self:IsTopCollision()
 		
 		-- initiate dragging if not currently dragging
-		if not self.dragging and top and button == "l" then
+		if not dragging and top and button == "l" then
 			if y < self.y + 25 and self.draggable then
 				self.clickx = x - self.x
 				self.clicky = y - self.y
@@ -355,11 +364,23 @@ function frame:MakeTop()
 	local base            = loveframes.base
 	local basechildren    = base.children
 	local numbasechildren = #basechildren
+	local parent          = self.parent
 	
+	-- check to see if the object's parent is not the base object
+	if parent ~= base then
+		local baseparent = self:GetBaseParent()
+		if baseparent.type == "frame" then
+			baseparent:MakeTop()
+		end
+		return
+	end
+	
+	-- check to see if the object is the only child of the base object
 	if numbasechildren == 1 then
 		return
 	end
 	
+	-- check to see if the object is already at the top
 	if basechildren[numbasechildren] == self then
 		return
 	end
@@ -374,8 +395,6 @@ function frame:MakeTop()
 		end
 	end
 	
-	basechildren[key]:mousepressed(x, y, "l")
-	
 end
 
 --[[---------------------------------------------------------
@@ -387,6 +406,12 @@ function frame:SetModal(bool)
 
 	local modalobject = loveframes.modalobject
 	local mbackground = self.modalbackground
+	local parent      = self.parent
+	local base        = loveframes.base
+	
+	if parent ~= base then
+		return
+	end
 	
 	self.modal = bool
 	

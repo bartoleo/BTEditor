@@ -3,9 +3,8 @@
 	-- Copyright (c) 2012 Kenny Shields --
 --]]------------------------------------------------
 
--- text clas
+-- slider class
 slider = class("slider", base)
-slider:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -104,8 +103,8 @@ function slider:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

@@ -5,7 +5,6 @@
 
 -- textinput class
 textinput = class("textinput", base)
-textinput:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -54,6 +53,7 @@ function textinput:initialize()
 	self.alltextselected    = false
 	self.linenumbers        = true
 	self.linenumberspanel   = false
+	self.editable           = true
 	self.internal           = false
 	self.OnEnter            = nil
 	self.OnTextChanged      = nil
@@ -258,8 +258,8 @@ function textinput:draw()
 	local vbar          = self.vbar
 	local hbar          = self.hbar
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 	
 	if vbar and hbar then
 		stencilfunc = function() love.graphics.rectangle("fill", self.x, self.y, self.width - 16, self.height - 16) end
@@ -460,6 +460,7 @@ function textinput:RunKey(key, unicode)
 	local indicatornum    = self.indicatornum
 	local multiline       = self.multiline
 	local alltextselected = self.alltextselected
+	local editable        = self.editable
 	local ontextchanged   = self.OnTextChanged
 	local onenter         = self.OnEnter
 	
@@ -526,6 +527,9 @@ function textinput:RunKey(key, unicode)
 			
 	-- key input checking system
 	if key == "backspace" then
+		if not editable then
+			return
+		end
 		local curindicatornum = self.indicatornum
 		if alltextselected then
 			self:Clear()
@@ -601,6 +605,10 @@ function textinput:RunKey(key, unicode)
 		end
 	else
 		if unicode > 31 and unicode < 127 then
+		
+			if not editable then
+				return
+			end
 		
 			if alltextselected then
 				self.alltextselected = false
@@ -1037,6 +1045,17 @@ function textinput:SetUsable(usable)
 end
 
 --[[---------------------------------------------------------
+	- func: GetUsable()
+	- desc: gets what characters can be used for the 
+			object's text
+--]]---------------------------------------------------------
+function textinput:GetUsable()
+
+	return self.usable
+	
+end
+
+--[[---------------------------------------------------------
 	- func: SetUnusable(unusable)
 	- desc: sets what characters can not be used for the 
 			object's text
@@ -1044,6 +1063,17 @@ end
 function textinput:SetUnusable(unusable)
 
 	self.unusable = unusable
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetUnusable()
+	- desc: gets what characters can not be used for the 
+			object's text
+--]]---------------------------------------------------------
+function textinput:GetUnusable()
+
+	return self.unusable
 	
 end
 
@@ -1381,5 +1411,27 @@ end
 function textinput:GetTabReplacement()
 
 	return self.tabreplacement
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetEditable(bool)
+	- desc: sets whether or not the user can edit the
+			object's text
+--]]---------------------------------------------------------
+function textinput:SetEditable(bool)
+
+	self.editable = bool
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetEditable
+	- desc: gets whether or not the user can edit the
+			object's text
+--]]---------------------------------------------------------
+function textinput:GetEditable()
+
+	return self.editable
 	
 end

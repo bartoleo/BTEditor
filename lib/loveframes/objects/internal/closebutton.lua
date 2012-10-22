@@ -5,7 +5,6 @@
 
 -- closebutton class
 closebutton = class("closebutton", base)
-closebutton:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -20,6 +19,9 @@ function closebutton:initialize()
 	self.hover          = false
 	self.down           = false
 	self.OnClick        = function() end
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 end
 
@@ -90,10 +92,9 @@ function closebutton:draw()
 	local skin          = skins[selfskin] or skins[skinindex]
 	local drawfunc      = skin.DrawCloseButton or skins[defaultskin].DrawCloseButton
 	local draw          = self.Draw
-	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

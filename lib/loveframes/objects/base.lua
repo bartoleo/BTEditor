@@ -5,7 +5,6 @@
 
 -- base object
 base = class("base")
-base:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -14,14 +13,15 @@ base:include(loveframes.templates.default)
 function base:initialize()
 	
 	-- width and height of the window
-	local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+	local w = love.graphics.getWidth()
+	local h = love.graphics.getHeight()
 	
-	self.type 		= "base"
-	self.width 		= w
-	self.height 	= h
-	self.internal	= true
-	self.children 	= {}
-	self.internals	= {}
+	self.type       = "base"
+	self.width      = w
+	self.height     = h
+	self.internal   = true
+	self.children   = {}
+	self.internals  = {}
 
 end
 
@@ -51,8 +51,8 @@ function base:draw()
 
 	local children = self.children
 	
-	loveframes.drawcount = loveframes.drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 	
 	for k, v in ipairs(children) do
 		v:draw()
@@ -1012,4 +1012,25 @@ function base:GetType()
 
 	return self.type
 
+end
+
+--[[---------------------------------------------------------
+	- func: SetDrawOrder()
+	- desc: sets the object's draw order
+--]]---------------------------------------------------------
+function base:SetDrawOrder()
+
+	loveframes.drawcount = loveframes.drawcount + 1
+	self.draworder = loveframes.drawcount
+
+end
+
+--[[---------------------------------------------------------
+	- func: GetDrawOrder()
+	- desc: sets the object's draw order
+--]]---------------------------------------------------------
+function base:GetDrawOrder()
+
+	return self.draworder
+	
 end

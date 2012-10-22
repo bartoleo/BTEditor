@@ -10,24 +10,30 @@ assert(not BASE:match('%.init%.$'), "Invalid require path `"..(...).."' (drop th
 loveframes = {}
 
 -- library info
-loveframes.info = {}
-loveframes.info.author 	= "Nikolai Resokav"
-loveframes.info.version = "0.9.3.2"
-loveframes.info.stage 	= "Alpha"
+loveframes.info                      = {}
+loveframes.info.author               = "Nikolai Resokav"
+loveframes.info.version              = "0.9.4"
+loveframes.info.stage                = "Alpha"
 
 -- library configurations
-loveframes.config = {}
-loveframes.config["DIRECTORY"]         = BASE
-loveframes.config["DEFAULTSKIN"]       = "Blue"
-loveframes.config["ACTIVESKIN"]        = "Blue"
-loveframes.config["INDEXSKINIMAGES"]   = true
-loveframes.config["DEBUG"]             = true
+loveframes.config                    = {}
+loveframes.config["DIRECTORY"]       = BASE
+loveframes.config["DEFAULTSKIN"]     = "Blue"
+loveframes.config["ACTIVESKIN"]      = "Blue"
+loveframes.config["INDEXSKINIMAGES"] = true
+loveframes.config["DEBUG"]           = true
 
-loveframes.drawcount 		= 0
-loveframes.hoverobject 		= false
-loveframes.modalobject 		= false
-loveframes.basicfont		= love.graphics.newFont(12)
-loveframes.basicfontsmall	= love.graphics.newFont(10)
+-- misc library vars
+loveframes.drawcount                 = 0
+loveframes.lastselection             = 0
+loveframes.selectiondelay            = 0.05
+loveframes.selectionstartdelay       = 0.50
+loveframes.selecting                 = false
+loveframes.hoverobject               = false
+loveframes.modalobject               = false
+loveframes.selectedobject            = false
+loveframes.basicfont                 = love.graphics.newFont(12)
+loveframes.basicfontsmall            = love.graphics.newFont(10)
 
 --[[---------------------------------------------------------
 	- func: load()
@@ -48,9 +54,17 @@ function loveframes.load()
 	-- create a list of gui objects and skins
 	local objects = loveframes.util.GetDirContents(dir .. "/objects")
 	local skins = loveframes.util.GetDirContents(dir .. "/skins")
+	local templates = loveframes.util.GetDirContents(dir .. "/templates")
 	
 	-- loop through a list of all gui objects and require them
 	for k, v in ipairs(objects) do
+		if v.extension == "lua" then
+			require(v.path .. "/" ..v.name)
+		end
+	end
+	
+	-- loop through a list of all gui templates and require them
+	for k, v in ipairs(templates) do
 		if v.extension == "lua" then
 			require(v.path .. "/" ..v.name)
 		end
@@ -121,8 +135,10 @@ function loveframes.mousereleased(x, y, button)
 	
 	object:mousereleased(x, y, button)
 	
+	-- reset the hover object
 	if button == "l" then
 		loveframes.hoverobject = false
+		loveframes.selectedobject = false
 	end
 	
 end
@@ -152,7 +168,7 @@ function loveframes.keyreleased(key)
 end
 
 --[[---------------------------------------------------------
-	- func: New(type, parent)
+	- func: Create(type, parent)
 	- desc: creates a new object or multiple new objects
 			(based on the method used) and returns said
 			object or objects for further manipulation
@@ -163,11 +179,14 @@ function loveframes.Create(data, parent)
 	
 		-- make sure the object specified is valid
 		if not _G[data] then
-			error("Error creating object: Invalid object '" ..data.. "'.")
+			loveframes.util.Error("Error creating object: Invalid object '" ..data.. "'.")
 		end
 		
 		-- create the object
 		local object = _G[data]:new()
+		
+		-- apply template properties to the object
+		loveframes.templates.ApplyToObject(object)
 		
 		-- if the object is a tooltip, return it and go no further
 		if data == "tooltip" then

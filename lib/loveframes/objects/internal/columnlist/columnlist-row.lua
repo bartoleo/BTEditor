@@ -5,7 +5,6 @@
 
 -- columnlistrow class
 columnlistrow = class("columnlistrow", base)
-columnlistrow:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -23,6 +22,9 @@ function columnlistrow:initialize(parent, data)
 	self.texty          = 5
 	self.internal       = true
 	self.columndata     = data
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 end
 
@@ -80,8 +82,8 @@ function columnlistrow:draw()
 	local draw              = self.Draw
 	local drawcount         = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

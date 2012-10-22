@@ -5,7 +5,6 @@
 
 -- multichoicelist class
 multichoicelist = class("multichoicelist", base)
-multichoicelist:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -26,7 +25,8 @@ function multichoicelist:initialize(object)
 	self.spacing        = self.list.listspacing
 	self.offsety        = 0
 	self.offsetx        = 0
-	self.extra          = 0
+	self.extrawidth     = 0
+	self.extraheight    = 0
 	self.canremove      = false
 	self.internal       = true
 	self.vbar           = false
@@ -39,7 +39,10 @@ function multichoicelist:initialize(object)
 		self:AddItem(row)
 	end
 	
-	table.insert(loveframes.base.children, self)
+	table.insert(loveframes.base.internals, self)
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 end
 
@@ -133,8 +136,8 @@ function multichoicelist:draw()
 	local internals     = self.internals
 	local children      = self.children
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)
@@ -307,7 +310,7 @@ function multichoicelist:CalculateSize()
 		
 	if self.itemheight > height then
 		
-		self.extra = self.itemheight - height
+		self.extraheight = self.itemheight - height
 			
 		if not vbar then
 			local scroll = scrollbody:new(self, "vertical")

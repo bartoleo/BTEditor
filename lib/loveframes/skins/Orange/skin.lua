@@ -769,8 +769,6 @@ function skin.DrawTabButton(object)
 		imagewidth = image:getWidth()
 		imageheight = image:getHeight()
 	end
-		
-	print(tabnumber, ptabnumber)
 	
 	if tabnumber == ptabnumber then
 		

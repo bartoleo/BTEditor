@@ -5,7 +5,6 @@
 
 -- columnlistheader class
 columnlistheader = class("columnlistheader", base)
-columnlistheader:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
@@ -43,6 +42,9 @@ function columnlistheader:initialize(name, parent)
 		end
 		self.parent.internals[1]:Sort(key, self.descending)
 	end
+	
+	-- apply template properties to the object
+	loveframes.templates.ApplyToObject(self)
 	
 end
 
@@ -112,8 +114,8 @@ function columnlistheader:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)

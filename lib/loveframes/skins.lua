@@ -3,9 +3,16 @@
 	-- Copyright (c) 2012 Kenny Shields --
 --]]------------------------------------------------
 
+-- skins library
 loveframes.skins = {}
+
+-- available skins
 loveframes.skins.available = {}
 
+--[[---------------------------------------------------------
+	- func: Register(skin)
+	- desc: registers a skin
+--]]---------------------------------------------------------
 function loveframes.skins.Register(skin)
 	
 	local name = skin.name
@@ -18,23 +25,23 @@ function loveframes.skins.Register(skin)
 	local indeximages = loveframes.config["INDEXSKINIMAGES"]
 	
 	if name == "" or not name then
-		error("Could not register skin: Invalid or missing name data.")
+		loveframes.util.Error("Could not register skin: Invalid or missing name data.")
 	end
 	
 	if author == "" or not author then
-		error("Could not register skin: Invalid or missing author data.")
+		loveframes.util.Error("Could not register skin: Invalid or missing author data.")
 	end
 	
 	if version == "" or version == nil then
-		error("Could not register skin: Invalid or missing version data.")
+		loveframes.util.Error("Could not register skin: Invalid or missing version data.")
 	end
 	
 	if namecheck then
-		error("Could not register skin: A skin with the name '" ..name.. "' already exists.")
+		loveframes.util.Error("Could not register skin: A skin with the name '" ..name.. "' already exists.")
 	end
 	
 	if not dircheck then
-		error("Could not register skin: Could not find a directory for skin '" ..name.. "'.")
+		loveframes.util.Error("Could not register skin: Could not find a directory for skin '" ..name.. "'.")
 	end
 	
 	loveframes.skins.available[name] = skin

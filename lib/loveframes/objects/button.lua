@@ -5,14 +5,13 @@
 
 -- button class
 button = class("button", base)
-button:include(loveframes.templates.default)
 
 --[[---------------------------------------------------------
 	- func: initialize()
 	- desc: initializes the object
 --]]---------------------------------------------------------
 function button:initialize()
-
+	
 	self.type           = "button"
 	self.text           = "Button"
 	self.width          = 80
@@ -94,8 +93,8 @@ function button:draw()
 	local draw          = self.Draw
 	local drawcount     = loveframes.drawcount
 	
-	loveframes.drawcount = drawcount + 1
-	self.draworder = loveframes.drawcount
+	-- set the object's draw order
+	self:SetDrawOrder()
 		
 	if draw then
 		draw(self)
@@ -161,6 +160,27 @@ function button:mousereleased(x, y, button)
 	end
 	
 	self.down = false
+
+end
+
+--[[---------------------------------------------------------
+	- func: keypressed(key)
+	- desc: called when the player presses a key
+--]]---------------------------------------------------------
+function button:keypressed(key, unicode)
+	
+	local visible = self.visible
+	
+	if not visible then
+		return
+	end
+	
+	local selectedobject = loveframes.selectedobject
+	local onclick        = self.OnClick
+	
+	if key == "return" and selectedobject == self then
+		onclick(self, 0, 0)
+	end
 
 end
 

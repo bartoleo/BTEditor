@@ -7,12 +7,11 @@
 loveframes.debug = {}
 
 local font            = love.graphics.newFont(10)
-local changelog, size = love.filesystem.read( loveframes.config["DIRECTORY"].."/changelog.txt")
+local changelog, size = love.filesystem.read(loveframes.config["DIRECTORY"].."/changelog.txt")
 local loremipsum      = 
 [[
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin dui enim, porta eget facilisis quis, laoreet sit amet urna. Maecenas lobortis venenatis euismod. Sed at diam sit amet odio feugiat pretium nec quis libero. Quisque auctor semper imperdiet. Maecenas risus eros, varius pharetra volutpat in, fermentum scelerisque lacus. Proin lectus erat, luctus non facilisis vel, hendrerit vitae nisl. Aliquam vulputate scelerisque odio id faucibus.
 ]]
-
 
 --[[---------------------------------------------------------
 	- func: draw()
@@ -29,7 +28,7 @@ function loveframes.debug.draw()
 	end
 	
 	local cols 				= loveframes.util.GetCollisions()
-	local topcol 			= cols[#cols] or {type = none, children = {}, x = 0, y = 0, width = 0, height = 0}
+	local topcol 			= {type = none, children = {}, x = 0, y = 0, width = 0, height = 0}
 	local objects 			= loveframes.util.GetAllObjects()
 	local author			= loveframes.info.author
 	local version			= loveframes.info.version
@@ -38,6 +37,14 @@ function loveframes.debug.draw()
 	local loveversion		= love._version
 	local fps				= love.timer.getFPS()
 	local deltatime			= love.timer.getDelta()
+	
+	-- set the top most collision object
+	for k, v in ipairs(cols) do
+		if v:IsTopCollision() then
+			topcol = v
+			break
+		end
+	end
 	
 	-- font for debug text
 	love.graphics.setFont(font)
