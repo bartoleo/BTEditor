@@ -28,7 +28,8 @@ EDITOR.palettenodeheight = 60
 EDITOR.palettenodeselected = nil
 EDITOR.filename = ""
 EDITOR.firstdraw = 2
-EDITOR.queue={}
+EDITOR.commands_queue={}
+EDITOR.filehistory={}
 
 EDITOR.pointer=nil
 
@@ -182,9 +183,6 @@ function state:enter(pre, action, level,  ...)
   object:SetWidth(300)
   object:SetText(EDITOR.title)
   EDITOR.gui.txt_title = object
-
-
-  EDITOR.gui.txt_title:SetText ("prova")
   
   state:layoutgui()
 
@@ -213,6 +211,8 @@ function state:enter(pre, action, level,  ...)
   -- forcing alpha of dialogs to 200
   loveframes.skins.available[loveframes.config["ACTIVESKIN"]].controls.frame_body_color[4]=200
 
+  state.readFileHistory()
+
   EDITOR.firstdraw = 2
 
   -- enable input
@@ -227,22 +227,28 @@ end
 
 function state:update(dt) 
 
-    if EDITOR.queue then
-      for i=#EDITOR.queue,1,-1 do
-        local v = EDITOR.queue[i]
-        if v=="loadfile" then
+    if EDITOR.commands_queue then
+      for i=#EDITOR.commands_queue,1,-1 do
+        local cmd = EDITOR.commands_queue[i].cmd
+        local arg = EDITOR.commands_queue[i].arg
+        if cmd=="loadfile" then
           local status, err = pcall(state.loadFile)
           if status == false then
             state.createDialog(state.funcnil,"alert",err)
           end
         end
-        if v=="savefile" then
+        if cmd=="savefile" then
           local status, err = pcall(state.saveFile)
           if status == false then
             state.createDialog(state.funcnil,"alert",err)
           end
         end
-        table.remove(EDITOR.queue,i)
+        if cmd=="setfocus" then
+          if arg then
+            arg:SetFocus(true)
+          end
+        end
+        table.remove(EDITOR.commands_queue,i)
       end
     end
 
@@ -345,6 +351,16 @@ function state:keypressed(key, unicode)
     if key=="f1" then
       state.createDialogHelp()
     end
+    if key=="f3" then
+        state.createDialog(state.loadFileFromDialog,"open")
+    end
+    if key=="f2" then
+      if EDITOR.filename~="" and love.keyboard.isDown("lshift") ==false then
+        table.insert(EDITOR.commands_queue,{cmd="savefile"})
+      else
+        state.createDialog(state.saveFileFromDialog,"save")
+      end
+    end
 
     if key=="f6" then
       if EDITOR.nodeselected and EDITOR.palettenodeselected then
@@ -355,8 +371,9 @@ function state:keypressed(key, unicode)
         EDITOR.dolayout=true
       end
     end
-    loveframes.keypressed(key, unicode)
   end
+
+  loveframes.keypressed(key, unicode)
 
 end
 
@@ -473,7 +490,7 @@ function state.clickEvent(object, mousex , mousey)
   end
   if object==EDITOR.gui.filesavebutton then
     if EDITOR.filename~="" then
-      table.insert(EDITOR.queue,"savefile")
+      table.insert(EDITOR.commands_queue,{cmd="savefile"})
     else
       state.createDialog(state.saveFileFromDialog,"save")
     end
@@ -506,37 +523,37 @@ function state.createDialog(onClose,ptype,...)
 
     if ptype=="open" then
       frame:SetName("Open File")
-      frame:SetSize(500, 150)
+      frame:SetSize(650, 210)
       frame:Center()
       local object = loveframes.Create("text",frame)
       object:SetText("Filename to open : ")
       object:SetPos(15, 65)
       object = loveframes.Create("textinput", frame)
-      object:SetPos(135, 60)
-      object:SetWidth(300)
+      object:SetPos(150, 60)
+      object:SetWidth(450)
       object:SetText(EDITOR.filename)
-      object:SetFocus()
+      object:SetFocus(true)
       EDITOR.gui.dialog.txt_filename = object
     end
 
     if ptype=="save" then
       frame:SetName("Save File")
-      frame:SetSize(500, 150)
+      frame:SetSize(650, 210)
       frame:Center()
       local object = loveframes.Create("text",frame)
       object:SetText("Filename to save : ")
       object:SetPos(15, 65)
       object = loveframes.Create("textinput", frame)
-      object:SetPos(135, 60)
-      object:SetWidth(300)
+      object:SetPos(150, 60)
+      object:SetWidth(450)
       object:SetText(EDITOR.filename)
-      object:SetFocus()
+      object:SetFocus(true)
       EDITOR.gui.dialog.txt_filename = object
     end
     
     if ptype=="alert" then
       frame:SetName("Warning!")
-      frame:SetSize(500, 150)
+      frame:SetSize(500, 210)
       frame:Center()
       local text = loveframes.Create("text",frame)
       text:SetText(arg[1])
@@ -546,19 +563,34 @@ function state.createDialog(onClose,ptype,...)
     if ptype=="save" or ptype=="open" then
       local object = loveframes.Create("button",frame)
       object:SetText("Set SaveDirectory as path")
-      object:SetPos(135,90)
+      object:SetPos(150,90)
       object:SetSize(150,20)
-      object.OnClick = function() EDITOR.gui.dialog.txt_filename:SetText( love.filesystem.getSaveDirectory()) end
+      object.OnClick = function() EDITOR.gui.dialog.txt_filename:SetText( love.filesystem.getSaveDirectory().."/") EDITOR.gui.dialog.txt_filename:SetFocus(true) end
+
+      local object = loveframes.Create("text",frame)
+      object:SetText("Choose from history : ")
+      object:SetPos(15, 130)
+
+      object = loveframes.Create("multichoice",frame)
+      for i,v in ipairs(EDITOR.filehistory) do
+        object:AddChoice(v)
+      end
+      object:SetPos(150, 125)
+      object:SetWidth(450)
+      object.OnChoiceSelected = function(object, choice) EDITOR.gui.dialog.txt_filename:SetText( choice ) end
+      EDITOR.gui.dialog.cmbfilehistory=object
     end
 
     local object = loveframes.Create("button",frame)
     object:SetPos(frame:GetWidth()/2-10-object:GetWidth(),frame:GetHeight()-30)
     object:SetText("OK")
     object.OnClick = function() EDITOR.gui.dialog.returnvalue = true if (EDITOR.gui.dialog.OnClose) then EDITOR.gui.dialog.OnClose(EDITOR.gui.dialog) end EDITOR.gui.dialog:Remove() EDITOR.inputenabled = true end
-    object = loveframes.Create("button",frame)
-    object:SetText("Cancel")
-    object:SetPos(frame:GetWidth()/2+10,frame:GetHeight()-30)
-    object.OnClick = function() EDITOR.gui.dialog.returnvalue = false if (EDITOR.gui.dialog.OnClose) then EDITOR.gui.dialog.OnClose(EDITOR.gui.dialog) end EDITOR.gui.dialog:Remove() EDITOR.inputenabled = true end
+    if ptype~="alert" then
+      object = loveframes.Create("button",frame)
+      object:SetText("Cancel")
+      object:SetPos(frame:GetWidth()/2+10,frame:GetHeight()-30)
+      object.OnClick = function() EDITOR.gui.dialog.returnvalue = false if (EDITOR.gui.dialog.OnClose) then EDITOR.gui.dialog.OnClose(EDITOR.gui.dialog) end EDITOR.gui.dialog:Remove() EDITOR.inputenabled = true end
+    end
 end
 
 function state.createDialogHelp()
@@ -581,9 +613,26 @@ function state.createDialogHelp()
     list1:SetPadding(5)
     list1:SetSpacing(5)
     local text1 = loveframes.Create("text")
-    text1:SetText("prova")
-    list1:AddItem(text1)
-    
+    text1:SetText("Version "..game_version..
+    [===[
+
+ Behaviour Tree Editor made in Love 
+  
+ thanks to: 
+  
+ all of Love project and forums 
+ [love2d.org] 
+  
+ Nikolai Resokov for LoveFrames lib 
+ [github.com/NikolaiResokav/LoveFrames] 
+  
+ vrld for hump lib 
+ [github.com/vrld/hump] 
+  
+ Bart van Strien for SECS class 
+ [love2d.org/wiki/Simple_Educative_Class_System] 
+]===])
+    list1:AddItem(text1)    
 
     local object = loveframes.Create("button",frame)
     object:SetPos(frame:GetWidth()/2-object:GetWidth()/2,frame:GetHeight()-30)
@@ -704,7 +753,7 @@ function state:addnode(pnode)
     table.insert(pnode.parent.children,pnode)
   end
   EDITOR.nodekeys[pnode.id]=pnode
-  state:updatenodes()
+  state:updateNodes()
 end
 
 function state:changeNodeSelected(pnode)
@@ -732,7 +781,7 @@ end
 function state:layout()
   local _collision = false
   local _a,_b,_step
-  state:updatenodes()
+  state:updateNodes()
   for i,v in pairs(EDITOR.nodekeys) do
     v.y = (v.level-1) *EDITOR.divisory
     for ii,vv in pairs(EDITOR.nodekeys) do
@@ -825,7 +874,7 @@ function minbyparentattribute(a,b,parent,att)
   end
   return b,a
 end
-function state:updatenodes()
+function state:updateNodes()
   EDITOR.nodesize = 0
   EDITOR.nodelevels = 0
   local levelindex =0
@@ -939,7 +988,7 @@ function state:moveNodeParent(pnode,pnewparent)
       pnode.parent = pnewparent
       pnode.level = pnewparent.level+1
     end 
-    state:updatenodes()
+    state:updateNodes()
     EDITOR.dolayout = true
   end
 end
@@ -982,7 +1031,7 @@ function state:deleteNode(pnode,external)
     EDITOR.nodekeys[pnode.id] = nil 
   end
   if external then
-    state:updatenodes()
+    state:updateNodes()
     EDITOR.dolayout = true
     state:changeNodeSelected(_newnode)
   end
@@ -1013,7 +1062,7 @@ function state.saveFileFromDialog()
   if EDITOR.gui.dialog.returnvalue==true then
     EDITOR.filename = EDITOR.gui.dialog.txt_filename:GetText()
     EDITOR.gui.lbl_filename:SetText(EDITOR.filename)
-    table.insert(EDITOR.queue,"savefile")
+    table.insert(EDITOR.commands_queue,{cmd="savefile"})
   end
 end
 
@@ -1021,7 +1070,7 @@ function state.loadFileFromDialog()
   if EDITOR.gui.dialog.returnvalue==true then
     EDITOR.filename = EDITOR.gui.dialog.txt_filename:GetText()
     EDITOR.gui.lbl_filename:SetText(EDITOR.filename)
-    table.insert(EDITOR.queue,"loadfile")
+    table.insert(EDITOR.commands_queue,{cmd="loadfile"})
   end
 end
 
@@ -1030,19 +1079,105 @@ function state.saveFile()
     state.createDialog(state.funcnil,"alert","choose filename!")
     return false
   end
+  EDITOR.title = EDITOR.gui.txt_title:GetText()
   local tree = state.serializeTree()
-  if love.filesystem.write(pfile,json.encode(_table)) then
-    return true
+  local treeser 
+  if string.ends(string.upper(EDITOR.filename),".JSON") then
+    treeser = json.encode(tree)
   else
-    error("Error saving file "..EDITOR.filename)
-    return false
+    treeser = DataDumper(tree)
   end
+  if string.starts(EDITOR.filename,love.filesystem.getSaveDirectory().."/") then
+    local _filename = string.sub(EDITOR.filename,string.len(love.filesystem.getSaveDirectory().."/")+1)
+    if love.filesystem.write(_filename,treeser) then
+      return true
+    else
+      error("Error saving file "..EDITOR.filename)
+      return false
+    end
+  else
+    local file = io.open(EDITOR.filename, "w")
+    if file == nil then
+      error("Error saving file "..EDITOR.filename)
+    end
+    file:write(treeser)
+    file:flush()
+    file:close()
+  end
+  
+  state.addFileToHistory(EDITOR.filename)
+
 end
 
 function state.loadFile()
+  local tree
+  local treeser
   if EDITOR.filename=="" then
     state.createDialog(state.funcnil,"alert","choose filename!")
   end
+  if string.starts(EDITOR.filename,love.filesystem.getSaveDirectory().."/") then
+    local _filename = string.sub(EDITOR.filename,string.len(love.filesystem.getSaveDirectory().."/")+1)
+    treeser = love.filesystem.read(_filename,treeser) 
+  else
+    local file = io.open(EDITOR.filename, "rb")
+    if file == nil then
+      error("Error loading file "..EDITOR.filename)
+    end
+    treeser = file:read("*all")
+    file:close()
+  end
+  if treeser == nil then
+    error("Error loading file "..EDITOR.filename.." or file is empty!")
+    return false
+  end
+  if string.ends(string.upper(EDITOR.filename),".JSON") then
+    tree = json.decode(treeser)
+  else
+    tree = loadstring(treeser)()
+  end
+
+  for k,v in pairs(tree) do
+    if (type(v)=="boolean" or type(v)=="string" or type(v)=="number") and string.starts(k,"_")==false then
+      EDITOR[k]=v
+    elseif k == "nodes" then
+      EDITOR.nodes={}
+      EDITOR.nodekeys={}
+      for ii,vv in ipairs(v) do
+        state.deserializeChild(EDITOR.nodes,vv,1)
+      end
+    end
+  end
+
+  state:updateNodes()
+  EDITOR.dolayout = true
+
+  EDITOR.gui.txt_title:SetText(EDITOR.title)
+  EDITOR.gui.chkautolayout:SetChecked(EDITOR.autolayout)
+
+  state.addFileToHistory(EDITOR.filename)
+
+  state:changeNodeSelected(EDITOR.nodes[1])
+
+  return true
+end
+
+function state.deserializeChild(pnodeParent,pnode,plevel)
+  local _nodeparent = nil
+  if plevel > 1 then
+    _nodeparent = pnodeParent
+  end
+  local _node = classes.node:new(pnode.name,pnode.type,pnode.func,pnode.id,pnode.x,pnode.y,pnode.width,pnode.height,_nodeparent,pnode.indexchild)
+  for k,v in pairs(pnode) do
+    if (type(v)=="boolean" or type(v)=="string" or type(v)=="number") and string.starts(k,"_")==false then
+      _node[k]=v
+    elseif k == "children" then
+      _node.children={}
+      for ii,vv in ipairs(v) do
+        state.deserializeChild(_node,vv,plevel+1)
+      end
+    end
+  end
+  state:addnode(_node)
 end
 
 function state.serializeTree()
@@ -1051,25 +1186,54 @@ function state.serializeTree()
   tree.autolayout = EDITOR.gui.chkautolayout:GetChecked()
   tree.nodes={}
   for i,v in ipairs(EDITOR.nodes) do
-    tree = state.serializeNode(tree.nodes,v)
+    tree.nodes = state.serializeNode(tree.nodes,v,1)
   end
   return tree
 end
 
-function state.serializeNode(pnodeparent, pnode)
+function state.serializeNode(pnodeparent, pnode,plevel)
   local node = {}
   for k,v in pairs(pnode) do
-    if type(v)=="string" or type(v)=="number"  then
-      node.k = v
+    if (type(v)=="boolean" or type(v)=="string" or type(v)=="number") and string.starts(k,"_")==false then
+      node[k] = v
     elseif k == "children" then
-      for ii,vv in ipairs(pnode.children) do
-        node = state.serializeNode(node,vv)
+      for ii,vv in ipairs(v) do
+        node = state.serializeNode(node,vv,plevel+1)
       end
     end
   end
-  if pnodeparent.children == nil then
-    pnodeparent.children={}
+  if plevel == 1 then
+    table.insert(pnodeparent,node)
+  else
+    if pnodeparent.children == nil then
+      pnodeparent.children={}
+    end
+    table.insert(pnodeparent.children,node)
   end
-  table.insert(pnodeparent.children,node)
   return pnodeparent
+end
+
+function state.addFileToHistory(pfilename)
+  local _found=false
+  for i,v in ipairs(EDITOR.filehistory) do
+    if v==pfilename then
+      _found = true
+      break
+    end
+  end
+  if _found==false then
+    table.insert(EDITOR.filehistory,pfilename)
+    love.filesystem.write("filehistory.txt",json.encode(EDITOR.filehistory))
+  end
+end
+
+function state.readFileHistory()
+  if love.filesystem.exists("filehistory.txt")==false then
+    EDITOR.filehistory={}
+  else
+    local _filehistory = love.filesystem.read("filehistory.txt")
+    if (_filehistory) then
+      EDITOR.filehistory =  json.decode(_filehistory)
+    end
+  end 
 end

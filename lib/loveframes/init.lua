@@ -4,7 +4,9 @@
 --]]------------------------------------------------
 
 local BASE = (...) .. '.'
-assert(not BASE:match('%.init%.$'), "Invalid require path `"..(...).."' (drop the `.init').")
+if string.sub(BASE,-5)=="init." then
+	BASE = string.sub(BASE,1,string.len(BASE)-5)
+end
 
 -- central library table
 loveframes = {}

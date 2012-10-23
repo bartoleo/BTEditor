@@ -1,7 +1,7 @@
 -- game infos
 game_id = "BTEditor"
 game_title = "BTEditor"
-game_version = "00.01"
+game_version = "00.02"
 
 -- libraries
 Gamestate = require "lib/gamestate"
@@ -11,7 +11,7 @@ require("lib/utils")
 require("lib/dumper")
 require("lib/xml_collect")
 require("lib/json")
-require("lib/loveframes")
+require("lib/loveframes/init")
 
 --profiler = require "profiler"
 
@@ -20,7 +20,7 @@ function love.load()
     -- Set filesystem identity
     love.filesystem.setIdentity(game_id)
 
-    love.graphics.setCaption(game_title)
+    love.graphics.setCaption(game_title.." v."..game_version)
 	
     readScreenMode("configs.txt")
 	

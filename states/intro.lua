@@ -3,7 +3,7 @@ Gamestate.intro = Gamestate.new()
 local state = Gamestate.intro
 
 state.dt = 0
-state.autoexit = 4
+state.autoexit = 5
 
 --- state (LUADOC TODO add resume)
 -- state (LUADOC TODO add description)
@@ -12,7 +12,7 @@ state.autoexit = 4
 -- @return (LUADOC TODO add return description) 
 function state:enter(pre, action, ...)
   
-  love.graphics.setBackgroundColor(64, 64, 64)
+  love.graphics.setBackgroundColor(255, 255, 255)
   
   getScreenMode()
 
@@ -23,6 +23,7 @@ end
 -- @param leave (LUADOC TODO add leave description) 
 -- @return (LUADOC TODO add return description) 
 function state:leave()
+  images.splash_bteditor = nil
 end
 
 --- state (LUADOC TODO add resume)
@@ -43,10 +44,32 @@ end
 -- @return (LUADOC TODO add return description) 
 function state:draw()
   love.graphics.setColor(255, 255, 255, 255)
-  love.graphics.setFont(fonts[",20"])
-  love.graphics.print(game_title, 20, 40, -0.3)
-  love.graphics.printf("Love Editor for Behaviour Trees", 0, screen_middley, screen_width, 'center')
-  love.graphics.printf(math.floor(state.autoexit-state.dt).." seconds remaining or mouse click to continue", 0, screen_middley+25, screen_width, 'center')
+  love.graphics.draw(images.bteditor_splash,screen_middlex-images.bteditor_splash:getWidth()/2,screen_middley-images.bteditor_splash:getHeight()/2)
+
+  love.graphics.setColor(0, 0, 0, 255)
+  love.graphics.setFont(fonts[",12"])
+  love.graphics.printf("Version "..game_version..
+    [===[
+ 
+Behaviour Tree Editor made in Love
+
+thanks to:
+
+all of Love project and forums
+[love2d.org]
+
+Nikolai Resokov for LoveFrames lib
+[github.com/NikolaiResokav/LoveFrames]
+
+vrld for hump lib
+[github.com/vrld/hump]
+
+Bart van Strien for SECS class
+[love2d.org/wiki/Simple_Educative_Class_System]
+
+]===]
+  ,screen_middlex-50 , screen_middley-60, 300, 'left')
+  love.graphics.printf(math.floor(state.autoexit-state.dt).." seconds remaining or mouse click to continue", 0, screen_height-20, screen_width, 'center')
 end
 
 --- state (LUADOC TODO add resume)
