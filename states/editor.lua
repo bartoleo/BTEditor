@@ -21,6 +21,7 @@ EDITOR.divisory=96
 EDITOR.gridsize=EDITOR.divisory/3
 EDITOR.arrowsize=EDITOR.divisory/10
 EDITOR.toolbarheight=64
+EDITOR.statusbarheight=20
 EDITOR.palettewidth=120
 EDITOR.cameraworld={x1=0,y1=0,x2=0,y2=0}
 EDITOR.palette={}
@@ -29,9 +30,9 @@ EDITOR.palettenodeselected = nil
 EDITOR.filename = ""
 EDITOR.firstdraw = 2
 EDITOR.commands_queue={}
-EDITOR.filehistory={}
-
-EDITOR.pointer=nil
+EDITOR.fileHistory={}
+EDITOR.nodesNotValid=0
+EDITOR.mousePointer=nil
 
 function state:enter(pre, action, level,  ...)
 
@@ -178,22 +179,57 @@ function state:enter(pre, action, level,  ...)
   object:SetMaxWidth(40)
   object:SetText("Title:")
   EDITOR.gui.lbl_title = object
- 
   object = loveframes.Create("textinput")
   object:SetWidth(300)
   object:SetText(EDITOR.title)
   EDITOR.gui.txt_title = object
   
+  object = loveframes.Create("text")
+  object:SetFont(fonts[",9"])
+  object:SetMaxWidth(40)
+  object:SetText("Type:")
+  EDITOR.gui.lbl_nodetype = object
+  object = loveframes.Create("textinput")
+  object:SetFont(fonts[",9"])
+  object.OnTextChanged = state.applyChangesNode
+  object:SetWidth(120)
+  object:SetHeight(17)
+  EDITOR.gui.txt_nodetype = object
+  object = loveframes.Create("text")
+  object:SetFont(fonts[",9"])
+  object:SetMaxWidth(40)
+  object:SetText("Name:")
+  EDITOR.gui.lbl_nodename = object
+  object = loveframes.Create("textinput")
+  object:SetFont(fonts[",9"])
+  object.OnTextChanged = state.applyChangesNode
+  object:SetWidth(120)
+  object:SetHeight(17)
+  EDITOR.gui.txt_nodename = object
+  object = loveframes.Create("text")
+  object:SetFont(fonts[",9"])
+  object:SetMaxWidth(40)
+  object:SetText("Func:")
+  EDITOR.gui.lbl_nodefunc = object
+  object = loveframes.Create("textinput")
+  object:SetFont(fonts[",9"])
+  object:SetWidth(300)
+  object:SetHeight(17)
+  object.OnTextChanged = state.applyChangesNode
+  EDITOR.gui.txt_nodefunc = object
+  
+
   state:layoutgui()
 
   EDITOR.nodes = {}
   EDITOR.nodekeys = {}
   EDITOR.nodesize = 0
+  EDITOR.nodesNotValid=0
   state:addnode(classes.node:new("","Start","","__start__",screen_middlex,32,nil,nil,nil,1))
   EDITOR.dolayout=true
 
   EDITOR.camera = Camera.new(screen_middlex+EDITOR.palettewidth/2,screen_middley-EDITOR.toolbarheight-5, 1, 0)
-  state:getCameraWorld()
+  state:changedCameraWorld()
 
   EDITOR.mouseaction = nil
 
@@ -263,7 +299,7 @@ function state:update(dt)
         endx,endy = _xc,_yc
         EDITOR.camera:move(startx-endx, starty-endy)
         startx,starty=EDITOR.camera:worldCoords(_x,_y)
-        state:getCameraWorld()
+        state:changedCameraWorld()
       end
       
       if _y>EDITOR.toolbarheight then
@@ -314,20 +350,24 @@ function state:draw()
   
   love.graphics.setColor(196,196,196,255)
   love.graphics.rectangle("fill",0,0,screen_width,EDITOR.toolbarheight)
-  love.graphics.rectangle("fill",screen_width-EDITOR.palettewidth,EDITOR.toolbarheight,screen_width,screen_height)
+  love.graphics.rectangle("fill",screen_width-EDITOR.palettewidth,EDITOR.toolbarheight,screen_width,screen_height-EDITOR.statusbarheight-EDITOR.toolbarheight)
+  love.graphics.rectangle("fill",0,screen_height-EDITOR.statusbarheight,screen_width,EDITOR.statusbarheight)
   love.graphics.setColor(64,64,64,255)
   love.graphics.rectangle("line",0,0,screen_width,EDITOR.toolbarheight)
-  love.graphics.rectangle("line",screen_width-EDITOR.palettewidth,EDITOR.toolbarheight,screen_width,screen_height)
+  love.graphics.rectangle("line",screen_width-EDITOR.palettewidth,EDITOR.toolbarheight,screen_width,screen_height-EDITOR.statusbarheight-EDITOR.toolbarheight)
+  love.graphics.rectangle("line",0,screen_height-EDITOR.statusbarheight,screen_width,EDITOR.statusbarheight)
   
   state:drawPalette()
 
+  state:drawEditBox()
+
   loveframes.draw()
 
-  state:drawDebug()
+  state:drawStatusBar()
 
-  if EDITOR.pointer then
+  if EDITOR.mousePointer then
     love.graphics.setColor(255,255,255,255)
-    love.graphics.draw(EDITOR.pointer,_x,_y)
+    love.graphics.draw(EDITOR.mousePointer,_x,_y)
   end
 
   if EDITOR.firstdraw>0 then
@@ -345,7 +385,7 @@ function state:keypressed(key, unicode)
   if EDITOR.inputenabled then  
     if key==" " and EDITOR.nodeselected then
       EDITOR.camera = Camera.new(EDITOR.nodeselected.x,EDITOR.nodeselected.y,1,0)
-      state:getCameraWorld()
+      state:changedCameraWorld()
     end
 
     if key=="f1" then
@@ -402,7 +442,7 @@ function state:mousepressed(x, y, button)
             --local __x,__y = EDITOR.camera:worldCoords(x,y)
             --EDITOR.camera = Camera.new(__x,__y,_newzoom,EDITOR.camera.rot)
             --EDITOR.camera = EDITOR.camera:move(_x,_y)
-            state:getCameraWorld()
+            state:changedCameraWorld()
           end
           if button=="wu" then
             local _newzoom = EDITOR.camera.zoom*1.5
@@ -413,7 +453,7 @@ function state:mousepressed(x, y, button)
             --EDITOR.camera = EDITOR.camera:move(_x,_y)
             --local __x,__y = EDITOR.camera:worldCoords(x,y)
             --EDITOR.camera = Camera.new(__x,__y,_newzoom,EDITOR.camera.rot)
-            state:getCameraWorld()
+            state:changedCameraWorld()
           end
         end
       end
@@ -572,7 +612,7 @@ function state.createDialog(onClose,ptype,...)
       object:SetPos(15, 130)
 
       object = loveframes.Create("multichoice",frame)
-      for i,v in ipairs(EDITOR.filehistory) do
+      for i,v in ipairs(EDITOR.fileHistory) do
         object:AddChoice(v)
       end
       object:SetPos(150, 125)
@@ -739,7 +779,7 @@ end
 
 function state.drawPalette()
     for i,v in pairs(EDITOR.palette) do
-       v:draw(true)
+       v:draw(false)
     end
 end
 
@@ -766,7 +806,27 @@ function state:changeNodeSelected(pnode)
          v.selected=false
        end
     end
-  end  
+    EDITOR.gui.txt_nodetype:SetText(EDITOR.nodeselected.type)
+    EDITOR.gui.txt_nodename:SetText(EDITOR.nodeselected.name)
+    EDITOR.gui.txt_nodefunc:SetText(EDITOR.nodeselected.func)
+    if EDITOR.nodeselected.type=="Start" then
+      EDITOR.gui.lbl_nodetype:SetVisible(false)
+      EDITOR.gui.txt_nodetype:SetVisible(false)
+      EDITOR.gui.lbl_nodename:SetVisible(false)
+      EDITOR.gui.txt_nodename:SetVisible(false)
+      EDITOR.gui.lbl_nodefunc:SetVisible(false)
+      EDITOR.gui.txt_nodefunc:SetVisible(false)
+    else
+      EDITOR.gui.lbl_nodetype:SetVisible(true)
+      EDITOR.gui.txt_nodetype:SetVisible(true)
+      EDITOR.gui.lbl_nodename:SetVisible(true)
+      EDITOR.gui.txt_nodename:SetVisible(true)
+      EDITOR.gui.lbl_nodefunc:SetVisible(true)
+      EDITOR.gui.txt_nodefunc:SetVisible(true)
+      state.positionEditNode()
+    end
+  end
+
 end
 
 function state:nodeHit(ptable,px,py)
@@ -837,6 +897,9 @@ function state:layout()
   if _collision == false then
     EDITOR.dolayout=false
   end
+  
+  state.positionEditNode()
+
 end
 
 function state.collidebox(px,py,pwidth,pheight,px2,py2,pwidth2,pheight2) 
@@ -877,6 +940,7 @@ end
 function state:updateNodes()
   EDITOR.nodesize = 0
   EDITOR.nodelevels = 0
+  EDITOR.nodesNotValid = 0
   local levelindex =0
   for i,v in ipairs(EDITOR.nodes) do
     v.level = 1
@@ -901,6 +965,9 @@ function state:updatenode(pnode,plevelindex)
      for i,v in ipairs(pnode.children) do
        levelindex=state:updatenode(v,levelindex)
      end
+   end
+   if pnode:validate() == false then
+      EDITOR.nodesNotValid=EDITOR.nodesNotValid+1
    end
    return levelindex
 end
@@ -945,9 +1012,9 @@ function state:moveNode(pnode,pdx,pdy,precursive)
 end
 
 function state:changePointer(ppointer)
-  if ppointer~=EDITOR.pointer then
-    EDITOR.pointer = ppointer
-    if EDITOR.pointer then
+  if ppointer~=EDITOR.mousePointer then
+    EDITOR.mousePointer = ppointer
+    if EDITOR.mousePointer then
       love.mouse.setVisible(false)
     else
       love.mouse.setVisible(true)
@@ -955,16 +1022,10 @@ function state:changePointer(ppointer)
   end
 end
 
-function state:drawDebug()
-  love.graphics.setColor(0,0,0,255)
-  love.graphics.print(love.timer.getFPS().." "..love.filesystem.getAppdataDirectory(),5,screen_height-25)
-  love.graphics.print(EDITOR.nodesize.." "..EDITOR.nodelevels,5,screen_height-15)
-
-end
-
-function state:getCameraWorld()
+function state:changedCameraWorld()
   EDITOR.cameraworld.x1,EDITOR.cameraworld.y1 = EDITOR.camera:worldCoords(0,0)
   EDITOR.cameraworld.x2,EDITOR.cameraworld.y2 = EDITOR.camera:worldCoords(screen_width,screen_height)
+  state.positionEditNode()
 end
 
 function state:moveNodeParent(pnode,pnewparent)
@@ -1039,9 +1100,14 @@ end
 
 function state:loadPalette()
   table.insert(EDITOR.palette, classes.node:new("","Selector","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*0,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","Sequence","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*1,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","Condition","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*2,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","Action","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*3,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","RandomSelector","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*1,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Sequence","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*2,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Condition","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*3,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Action","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*4,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","RepeatUntil","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*5,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Continue","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*6,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Wait","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*7,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","WaitContinue","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*8,nil,nil,nil,nil))
 end
 
 function state:changePaletteNodeSelected(pnode)
@@ -1215,25 +1281,78 @@ end
 
 function state.addFileToHistory(pfilename)
   local _found=false
-  for i,v in ipairs(EDITOR.filehistory) do
+  for i,v in ipairs(EDITOR.fileHistory) do
     if v==pfilename then
       _found = true
       break
     end
   end
   if _found==false then
-    table.insert(EDITOR.filehistory,pfilename)
-    love.filesystem.write("filehistory.txt",json.encode(EDITOR.filehistory))
+    table.insert(EDITOR.fileHistory,pfilename)
+    love.filesystem.write("filehistory.txt",json.encode(EDITOR.fileHistory))
   end
 end
 
 function state.readFileHistory()
   if love.filesystem.exists("filehistory.txt")==false then
-    EDITOR.filehistory={}
+    EDITOR.fileHistory={}
   else
     local _filehistory = love.filesystem.read("filehistory.txt")
     if (_filehistory) then
-      EDITOR.filehistory =  json.decode(_filehistory)
+      EDITOR.fileHistory =  json.decode(_filehistory)
     end
   end 
+end
+
+function state:drawStatusBar()
+  love.graphics.setFont(fonts[",12"])
+  love.graphics.setColor(0,0,0,255)
+  love.graphics.print("Nodes :"..EDITOR.nodesize,2,screen_height-EDITOR.statusbarheight+2)
+  love.graphics.print("Levels :"..EDITOR.nodelevels,2+200,screen_height-EDITOR.statusbarheight+2)
+  if EDITOR.nodesNotValid==0 then
+    love.graphics.setColor(0,0,0,255)
+  else
+    love.graphics.setColor(255,0,0,255)
+  end
+  love.graphics.print("Nodes KO:"..EDITOR.nodesNotValid,2+100,screen_height-EDITOR.statusbarheight+2)
+end
+
+function state.applyChangesNode(object, text)
+  if EDITOR.nodeselected then
+    EDITOR.nodeselected.type=EDITOR.gui.txt_nodetype:GetText()
+    EDITOR.nodeselected.name=EDITOR.gui.txt_nodename:GetText()
+    EDITOR.nodeselected.func=EDITOR.gui.txt_nodefunc:GetText()
+    EDITOR.nodeselected:changeWidth()
+  end
+end
+
+function state.positionEditNode()
+  if EDITOR.nodeselected then
+    local _x,_y = EDITOR.camera:cameraCoords(EDITOR.nodeselected.x,EDITOR.nodeselected.y)
+    local _width,_height = EDITOR.camera:cameraCoords(EDITOR.nodeselected.x+EDITOR.nodeselected.width,EDITOR.nodeselected.y+EDITOR.nodeselected.height)
+    if _x+339 > screen_width-EDITOR.palettewidth then
+      _width = _width + (screen_width-EDITOR.palettewidth-_x-339)
+      _x = _x + (screen_width-EDITOR.palettewidth-_x-339)
+    end    
+    if _x < 0 then
+      _width = _width + (-_x)
+      _x = _x + (-_x)
+    end    
+    EDITOR.gui.lbl_nodetype:SetPos(_x+2,_height+7)
+    EDITOR.gui.txt_nodetype:SetPos(_x+35,_height+2)
+    EDITOR.gui.lbl_nodename:SetPos(_x+172,_height+7)
+    EDITOR.gui.txt_nodename:SetPos(_x+205,_height+2)
+    EDITOR.gui.lbl_nodefunc:SetPos(_x+2,_height+25)
+    EDITOR.gui.txt_nodefunc:SetPos(_x+35,_height+20)
+    EDITOR.box={x=_x,y=_y,width=_width,height=_height}
+  end
+end
+
+function state.drawEditBox()
+  if EDITOR.box and EDITOR.nodeselected and EDITOR.nodeselected.type~="Start" then
+    love.graphics.setColor(0,0,0,200)
+    love.graphics.rectangle("line",EDITOR.box.x,EDITOR.box.height,337,39)
+    love.graphics.setColor(255,255,255,200)
+    love.graphics.rectangle("fill",EDITOR.box.x,EDITOR.box.height,337,39)
+  end
 end

@@ -4,6 +4,30 @@
 		"selected_items":
 		[
 			[
+				"nodes",
+				"nodeselected"
+			],
+			[
+				"draw",
+				"love.graphics.draw"
+			],
+			[
+				"status",
+				"statusbarheight"
+			],
+			[
+				"toolbar",
+				"toolbarheight"
+			],
+			[
+				"_draw",
+				"_drawarrow"
+			],
+			[
+				"txt_",
+				"txt_title"
+			],
+			[
 				"for",
 				"forp	for k,v in pairs()"
 			],
@@ -22,10 +46,6 @@
 			[
 				"change",
 				"changeNodeSelected"
-			],
-			[
-				"nodes",
-				"nodekeys"
 			],
 			[
 				"print",
@@ -59,7 +79,7 @@
 			"file": "main.lua",
 			"settings":
 			{
-				"buffer_size": 1987,
+				"buffer_size": 2013,
 				"line_ending": "Windows"
 			}
 		},
@@ -67,7 +87,7 @@
 			"file": "states/intro.lua",
 			"settings":
 			{
-				"buffer_size": 2567,
+				"buffer_size": 3052,
 				"line_ending": "Windows"
 			}
 		},
@@ -75,15 +95,31 @@
 			"file": "states/editor.lua",
 			"settings":
 			{
-				"buffer_size": 31264,
+				"buffer_size": 41477,
 				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/leo/AppData/Roaming/LOVE/BTEditor/prova.json",
+			"settings":
+			{
+				"buffer_size": 908,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/leo/AppData/Roaming/LOVE/BTEditor/prova.lua",
+			"settings":
+			{
+				"buffer_size": 2640,
+				"line_ending": "Unix"
 			}
 		},
 		{
 			"file": "classes/node.lua",
 			"settings":
 			{
-				"buffer_size": 6819,
+				"buffer_size": 10368,
 				"line_ending": "Windows"
 			}
 		},
@@ -99,7 +135,7 @@
 			"file": "lib/utils.lua",
 			"settings":
 			{
-				"buffer_size": 10540,
+				"buffer_size": 10738,
 				"line_ending": "Windows"
 			}
 		},
@@ -123,7 +159,7 @@
 			"file": "lib/loveframes/init.lua",
 			"settings":
 			{
-				"buffer_size": 7444,
+				"buffer_size": 7437,
 				"line_ending": "Windows"
 			}
 		},
@@ -200,6 +236,10 @@
 	},
 	"file_history":
 	[
+		"/C/Users/leo/AppData/Local/Temp/7zO266C.tmp/main.lua",
+		"/C/Users/leo/AppData/Local/Temp/7zOAE1C.tmp/world.lua",
+		"/C/Users/leo/AppData/Local/Temp/7zO8572.tmp/sounds.lua",
+		"/C/Users/leo/AppData/Local/Temp/7zO58F6.tmp/player.lua",
 		"/C/leo/love/quickie/Quickie/init.lua",
 		"/C/leo/love/quickie/main.lua",
 		"/C/leo/love/BTEditor/lib/loveframes/init.lua",
@@ -285,6 +325,54 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"(15",
+			"applyChangesNode",
+			"getCameraWorld",
+			"getcameraworld",
+			"getcameraword",
+			"camera",
+			"type",
+			"coords",
+			"func",
+			"palette",
+			"drawpal",
+			"statusbarheight",
+			"nodesNotValid",
+			"nodes",
+			"toolba",
+			"debug",
+			"drawpale",
+			"palette",
+			"drawp",
+			"updatenode",
+			"EDITOR.filehistory",
+			"EDITOR.pointer",
+			"debug",
+			"updateNode",
+			"select",
+			"nodes",
+			"fileopen",
+			" print",
+			"chk_au",
+			"fileopen",
+			"EDITOR.title",
+			"updatenodes",
+			"f1",
+			"click",
+			"help",
+			"serial",
+			"love.file",
+			"setfocu",
+			"focus",
+			"setfoc",
+			"queue",
+			"focus",
+			"createdial",
+			"queue",
+			"command",
+			"openfile",
+			"EDITOR.queue",
+			"queue",
 			"filename",
 			"title",
 			"ipais",
@@ -364,55 +452,7 @@
 			"clickeve",
 			"layoutgui",
 			"zoom",
-			"updatenodes",
-			":movenode",
-			"move",
-			"updatenode",
-			":draw",
-			"EDITOR.camera",
-			"nodeke",
-			"debug",
-			"draw",
-			"mouseactio",
-			"changeNodeSelected",
-			"changenodesele\nchangenodesele\nChanchangenodesele",
-			"changenodesele",
-			"nodeslect",
-			"frame",
-			":Draw",
-			"modalbackground",
-			"modal",
-			"setcolor",
-			"max",
-			"layout",
-			"moveto",
-			"moveno",
-			"moveto",
-			"EDITOR",
-			"\"C\"",
-			"\"c",
-			";",
-			".x",
-			"addnode",
-			"node",
-			"clickeve",
-			".node:new",
-			"node:neclass",
-			".y",
-			"pparent",
-			".y",
-			"\"a",
-			"addchi",
-			"gamestate",
-			"angle",
-			"grid",
-			"indexcl",
-			"addnod",
-			"updatenodes",
-			"nodeskey",
-			"32",
-			"10",
-			"genera"
+			"updatenodes"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -420,6 +460,10 @@
 		"regex": false,
 		"replace_history":
 		[
+			"changedCameraWorld",
+			"EDITOR.fileHistory",
+			"EDITOR.mousePointer",
+			"EDITOR.commands_queue",
 			"EDITOR.queue",
 			":moveNode",
 			"EDITOR.",
@@ -446,15 +490,15 @@
 					"file": "main.lua",
 					"settings":
 					{
-						"buffer_size": 1987,
+						"buffer_size": 2013,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1426,
-								1426
+								389,
+								389
 							]
 						],
 						"settings":
@@ -499,7 +543,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 62,
+							"function_name_status_row": 19,
 							"gjslint_ignore":
 							[
 								110
@@ -551,7 +595,7 @@
 							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 1029.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -561,15 +605,15 @@
 					"file": "states/intro.lua",
 					"settings":
 					{
-						"buffer_size": 2567,
+						"buffer_size": 3052,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								941,
-								941
+								1633,
+								1633
 							]
 						],
 						"settings":
@@ -614,7 +658,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 34,
+							"function_name_status_row": 54,
 							"gjslint_ignore":
 							[
 								110
@@ -668,7 +712,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 540.0,
+						"translation.y": 806.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -678,15 +722,15 @@
 					"file": "states/editor.lua",
 					"settings":
 					{
-						"buffer_size": 31264,
+						"buffer_size": 41477,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								29758,
-								29758
+								40486,
+								40486
 							]
 						],
 						"settings":
@@ -731,7 +775,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 1014,
+							"function_name_status_row": 1332,
 							"gjslint_ignore":
 							[
 								110
@@ -785,25 +829,25 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 20188.0,
+						"translation.y": 25183.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 3,
-					"file": "classes/node.lua",
+					"file": "/C/Users/leo/AppData/Roaming/LOVE/BTEditor/prova.json",
 					"settings":
 					{
-						"buffer_size": 6819,
+						"buffer_size": 908,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								160,
-								1616
+								906,
+								906
 							]
 						],
 						"settings":
@@ -848,7 +892,122 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 7,
+							"function_name_status_row": 0,
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 6795.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/C/Users/leo/AppData/Roaming/LOVE/BTEditor/prova.lua",
+					"settings":
+					{
+						"buffer_size": 2640,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1508,
+								1508
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"function_name_status_row": 64,
 							"gjslint_ignore":
 							[
 								110
@@ -902,13 +1061,130 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 645.0,
+						"translation.y": 942.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 5,
+					"file": "classes/node.lua",
+					"settings":
+					{
+						"buffer_size": 10368,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1695,
+								1704
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"function_name_status_row": 68,
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3306.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
 					"file": "lib/SECS.lua",
 					"settings":
 					{
@@ -1023,19 +1299,19 @@
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 7,
 					"file": "lib/utils.lua",
 					"settings":
 					{
-						"buffer_size": 10540,
+						"buffer_size": 10738,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								9824,
-								9872
+								9310,
+								9631
 							]
 						],
 						"settings":
@@ -1080,7 +1356,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 321,
+							"function_name_status_row": 302,
 							"gjslint_ignore":
 							[
 								110
@@ -1134,13 +1410,13 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 5896.0,
+						"translation.y": 5559.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 8,
 					"file": "conf.lua",
 					"settings":
 					{
@@ -1257,7 +1533,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 9,
 					"file": "README.md",
 					"settings":
 					{
@@ -1372,19 +1648,19 @@
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 10,
 					"file": "lib/loveframes/init.lua",
 					"settings":
 					{
-						"buffer_size": 7444,
+						"buffer_size": 7437,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								662,
-								632
+								625,
+								668
 							]
 						],
 						"settings":
@@ -1429,7 +1705,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 19,
+							"function_name_status_row": 21,
 							"gjslint_ignore":
 							[
 								110
@@ -1482,13 +1758,13 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 120.0,
+						"translation.y": 60.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 9,
+					"buffer": 11,
 					"file": "lib/loveframes/debug.lua",
 					"settings":
 					{
@@ -1499,8 +1775,8 @@
 						"selection":
 						[
 							[
-								358,
-								358
+								1213,
+								1213
 							]
 						],
 						"settings":
@@ -1545,7 +1821,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 9,
+							"function_name_status_row": 28,
 							"gjslint_ignore":
 							[
 								110
