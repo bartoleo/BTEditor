@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"isdo",
+				"love.keyboard.isDown"
+			],
+			[
 				"nodes",
 				"nodeselected"
 			],
@@ -95,7 +99,7 @@
 			"file": "states/editor.lua",
 			"settings":
 			{
-				"buffer_size": 41477,
+				"buffer_size": 41737,
 				"line_ending": "Windows"
 			}
 		},
@@ -103,7 +107,7 @@
 			"file": "/C/Users/leo/AppData/Roaming/LOVE/BTEditor/prova.json",
 			"settings":
 			{
-				"buffer_size": 908,
+				"buffer_size": 1130,
 				"line_ending": "Windows"
 			}
 		},
@@ -119,7 +123,7 @@
 			"file": "classes/node.lua",
 			"settings":
 			{
-				"buffer_size": 10368,
+				"buffer_size": 10544,
 				"line_ending": "Windows"
 			}
 		},
@@ -325,6 +329,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"\" \"",
 			"(15",
 			"applyChangesNode",
 			"getCameraWorld",
@@ -451,8 +456,7 @@
 			"deleteNode",
 			"clickeve",
 			"layoutgui",
-			"zoom",
-			"updatenodes"
+			"zoom"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -722,15 +726,15 @@
 					"file": "states/editor.lua",
 					"settings":
 					{
-						"buffer_size": 41477,
+						"buffer_size": 41737,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								40486,
-								40486
+								10748,
+								10748
 							]
 						],
 						"settings":
@@ -775,7 +779,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 1332,
+							"function_name_status_row": 391,
 							"gjslint_ignore":
 							[
 								110
@@ -829,7 +833,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 25183.0,
+						"translation.y": 6996.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -839,15 +843,15 @@
 					"file": "/C/Users/leo/AppData/Roaming/LOVE/BTEditor/prova.json",
 					"settings":
 					{
-						"buffer_size": 908,
+						"buffer_size": 1130,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								906,
-								906
+								0,
+								0
 							]
 						],
 						"settings":
@@ -1071,15 +1075,15 @@
 					"file": "classes/node.lua",
 					"settings":
 					{
-						"buffer_size": 10368,
+						"buffer_size": 10544,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1695,
-								1704
+								467,
+								470
 							]
 						],
 						"settings":
@@ -1124,7 +1128,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 68,
+							"function_name_status_row": 17,
 							"gjslint_ignore":
 							[
 								110
@@ -1178,7 +1182,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 3306.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"

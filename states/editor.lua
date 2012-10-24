@@ -120,6 +120,25 @@ function state:enter(pre, action, level,  ...)
   EDITOR.gui.divisor2 = object
 
   object = loveframes.Create("imagebutton")
+  object:SetImage(images.center)
+  object:SizeToImage()
+  object:SetText("")
+  object.OnClick = state.clickEvent
+  list:AddItem(object)
+  EDITOR.gui.centerbutton = object
+  tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-70,30)
+  tooltip:SetText("Center on selected node")
+  
+  object = loveframes.Create("text")
+  object:SetMaxWidth(32)
+  object:SetText(" ")
+  list:AddItem(object)
+  EDITOR.gui.divisor3 = object
+
+  object = loveframes.Create("imagebutton")
   object:SetImage(images.bin)
   object:SizeToImage()
   object:SetText("")
@@ -136,7 +155,7 @@ function state:enter(pre, action, level,  ...)
   object:SetMaxWidth(100)
   object:SetText(" ")
   list:AddItem(object)
-  EDITOR.gui.divisor3 = object
+  EDITOR.gui.divisorcenter = object
 
   object = loveframes.Create("imagebutton")
   object:SetText("")
@@ -383,11 +402,7 @@ function state:keypressed(key, unicode)
   end
 
   if EDITOR.inputenabled then  
-    if key==" " and EDITOR.nodeselected then
-      EDITOR.camera = Camera.new(EDITOR.nodeselected.x,EDITOR.nodeselected.y,1,0)
-      state:changedCameraWorld()
-    end
-
+    
     if key=="f1" then
       state.createDialogHelp()
     end
@@ -543,6 +558,9 @@ function state.clickEvent(object, mousex , mousey)
   end
   if object==EDITOR.gui.binbutton then
     state:deleteNode(EDITOR.nodeselected,true)
+  end
+  if object==EDITOR.gui.centerbutton then
+    state:centerNode(EDITOR.nodeselected)
   end
   if object==EDITOR.gui.helpbutton then
     state.createDialogHelp()
@@ -985,9 +1003,9 @@ function state:layoutgui()
   EDITOR.gui.lbl_title:SetPos(400, 40)
   EDITOR.gui.txt_title:SetPos(440, 35)
   EDITOR.gui.toolbar:SetPos(0,0)
-  EDITOR.gui.divisor3:SetMaxWidth(0)
+  EDITOR.gui.divisorcenter:SetMaxWidth(0)
   EDITOR.gui.toolbar:SetSize(screen_width,32)
-  EDITOR.gui.divisor3:SetMaxWidth(screen_width-360)
+  EDITOR.gui.divisorcenter:SetMaxWidth(screen_width-423)
   EDITOR.gui.toolbar:RedoLayout ()
   EDITOR.firstdraw = 2
 
@@ -1354,5 +1372,15 @@ function state.drawEditBox()
     love.graphics.rectangle("line",EDITOR.box.x,EDITOR.box.height,337,39)
     love.graphics.setColor(255,255,255,200)
     love.graphics.rectangle("fill",EDITOR.box.x,EDITOR.box.height,337,39)
+  end
+end
+
+function state:centerNode(pnode)
+  if pnode then
+    EDITOR.camera = Camera.new(pnode.x,pnode.y,1,0)
+    _x1,_y1 = EDITOR.camera:worldCoords(0,0)
+    _x,_y = EDITOR.camera:worldCoords(EDITOR.palettewidth,EDITOR.toolbarheight)
+    EDITOR.camera = Camera.new(pnode.x-_x1+_x,pnode.y-_y1+_y,1,0)
+    state:changedCameraWorld()
   end
 end

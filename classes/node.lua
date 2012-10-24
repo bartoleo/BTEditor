@@ -16,12 +16,11 @@ function node:init(pname,ptype,pfunc,pid,px,py,pwidth,pheight,pparent,pindexchil
   self.y = py
   self.finished = false
   self.textwidth, self.textlines = fonts[","..EDITOR.fontsize]:getWrap(self.type.."\n"..self.name.."\n"..self.func.." ", 400)
-  local _increment =EDITOR.fontsize*2
-  if (self.type=="Condition") then
-    _increment =EDITOR.fontsize*6
+  self.width = pwidth
+  if pwidth==nil then
+    self:changeWidth()
   end
-  self.width = nvl(pwidth,self.textwidth+_increment)
-  self.height = nvl(pheight,EDITOR.fontsize*2+EDITOR.fontsize*self.textlines)
+  self.height = nvl(pheight,EDITOR.fontsize*1+EDITOR.fontsize*self.textlines)
   self.selected = false
   self.parent = pparent
   self.children={}
@@ -176,7 +175,11 @@ function node:draw(pclipifoutsidecamera)
       love.graphics.draw(images.condition,self.x+2,self.y+2)
     end
     love.graphics.setColor(0,0,0,255)
-    love.graphics.printf(self.type.."\n"..self.name.."\n"..self.func,self.x,self.y+10,self.width,"center")
+    if self.type=="Start" then
+      love.graphics.printf(self.type.."\n"..self.name.."\n"..self.func,self.x,self.y+EDITOR.fontsize*3/2,self.width,"center")
+    else
+      love.graphics.printf(self.type.."\n"..self.name.."\n"..self.func,self.x,self.y+EDITOR.fontsize/2,self.width,"center")
+    end
     if self.validtext then
       love.graphics.setColor(255,0,0,255)
       love.graphics.print(self.validtext,self.x,self.y+self.height+2)
@@ -203,9 +206,9 @@ end
 
 function node:changeWidth()
   self.textwidth, self.textlines = fonts[","..EDITOR.fontsize]:getWrap(self.type.."\n"..self.name.."\n"..self.func.." ", 400)
-  local _increment =EDITOR.fontsize*2
-  if (self.type=="CONDITION") then
-    _increment =EDITOR.fontsize*6
+  local _increment = 28
+  if (self.type=="Condition") then
+    _increment =EDITOR.fontsize*4+28
   end
   self.width = self.textwidth+_increment
 end
