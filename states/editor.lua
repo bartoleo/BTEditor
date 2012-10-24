@@ -449,26 +449,10 @@ function state:mousepressed(x, y, button)
           EDITOR.mouseaction = "move"
           state:changePointer(images.pointer_move)
           if button=="wd" then
-            local _newzoom = EDITOR.camera.zoom/1.5
-            if _newzoom >= 0.90 and _newzoom<=1.1 then
-              _newzoom = 1
-            end
-            EDITOR.camera = Camera.new(_x,_y,_newzoom,EDITOR.camera.rot)
-            --local __x,__y = EDITOR.camera:worldCoords(x,y)
-            --EDITOR.camera = Camera.new(__x,__y,_newzoom,EDITOR.camera.rot)
-            --EDITOR.camera = EDITOR.camera:move(_x,_y)
-            state:changedCameraWorld()
+            state:zoom(_x,_y,1/1.5)
           end
           if button=="wu" then
-            local _newzoom = EDITOR.camera.zoom*1.5
-            if _newzoom >= 0.90 and _newzoom<=1.1 then
-              _newzoom = 1
-            end
-            EDITOR.camera = Camera.new(_x,_y,_newzoom,EDITOR.camera.rot)
-            --EDITOR.camera = EDITOR.camera:move(_x,_y)
-            --local __x,__y = EDITOR.camera:worldCoords(x,y)
-            --EDITOR.camera = Camera.new(__x,__y,_newzoom,EDITOR.camera.rot)
-            state:changedCameraWorld()
+            state:zoom(_x,_y,1.5)
           end
         end
       end
@@ -1383,4 +1367,16 @@ function state:centerNode(pnode)
     EDITOR.camera = Camera.new(pnode.x-_x1+_x,pnode.y-_y1+_y,1,0)
     state:changedCameraWorld()
   end
+end
+
+function state:zoom(xc,yc,zoom)
+  _xs,_ys=EDITOR.camera:cameraCoords(xc,yc)
+  local _newzoom = EDITOR.camera.zoom*zoom
+  if _newzoom >= 0.90 and _newzoom<=1.1 then
+    _newzoom = 1
+  end
+  EDITOR.camera = Camera.new(xc,yc,_newzoom,EDITOR.camera.rot)
+  _xc2,_yc2=EDITOR.camera:worldCoords(_xs,_ys)
+  EDITOR.camera = Camera.new(xc-_xc2+xc,yc-_yc2+yc,_newzoom,EDITOR.camera.rot)
+  state:changedCameraWorld()
 end
