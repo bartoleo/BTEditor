@@ -7,6 +7,8 @@ local state = Gamestate.editor
 
 -- GAME environment
 EDITOR={}
+EDITOR.fileversionsave = game_version
+EDITOR.fileversioncreate = game_version
 EDITOR.inputenabled = false
 EDITOR.filename = nil
 EDITOR.title = ""
@@ -58,6 +60,19 @@ function state:enter(pre, action, level,  ...)
   list:SetPadding(5)
   list:SetSpacing(5)
   EDITOR.gui.toolbar = list
+
+  object = loveframes.Create("imagebutton")
+  object:SetImage(images.newdoc)
+  object:SizeToImage()
+  object:SetText("")
+  object.OnClick = state.clickEvent
+  list:AddItem(object)
+  EDITOR.gui.newdocbutton = object
+  local tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(0,30)
+  tooltip:SetText("New file")
 
   object = loveframes.Create("imagebutton")
   object:SetImage(images.fileopen)
@@ -271,7 +286,7 @@ function state:enter(pre, action, level,  ...)
   object.OnTextChanged = state.applyChangesNode
   EDITOR.gui.txt_nodefunc = object
   
-  state:layoutgui()
+  state:layoutGui()
 
   state:loadPalette()
 
@@ -540,6 +555,9 @@ function state:keyreleased(key)
 end
 
 function state.clickEvent(object, mousex , mousey)
+  if object==EDITOR.gui.newdocbutton then
+    state:newTree()
+  end
   if object==EDITOR.gui.fileopenbutton then
     state.createDialog(state.loadFileFromDialog,"open")
   end
@@ -821,7 +839,7 @@ function state.closeDialogOptions()
         saveScreenMode("configs.txt")
       end
     end
-    state:layoutgui()
+    state:layoutGui()
     for i,v in ipairs(EDITOR.palette) do
       v.x = screen_width-EDITOR.palettewidth+5
     end
@@ -1094,7 +1112,7 @@ function EDITOR.drawArrow(x1,y1,x2,y2)
   love.graphics.line(x2,y2,x2+math.cos(angle+0.25)*EDITOR.arrowsize,y2+math.sin(angle+0.25)*EDITOR.arrowsize)
 end
 
-function state:layoutgui()
+function state:layoutGui()
   EDITOR.gui.lbl_lblfilename:SetPos(5, 40)
   EDITOR.gui.lbl_filename:SetPos(70, 35)
   EDITOR.gui.lbl_title:SetPos(400, 40)
@@ -1103,7 +1121,7 @@ function state:layoutgui()
   EDITOR.gui.toolbar:SetPos(0,0)
   EDITOR.gui.divisorcenter:SetMaxWidth(0)
   EDITOR.gui.toolbar:SetSize(screen_width,32)
-  EDITOR.gui.divisorcenter:SetMaxWidth(screen_width-480)
+  EDITOR.gui.divisorcenter:SetMaxWidth(screen_width-510)
   EDITOR.gui.toolbar:RedoLayout ()
   EDITOR.firstdraw = 2
 
@@ -1359,6 +1377,9 @@ function state.serializeTree()
   tree.title = EDITOR.title
   tree.notes = EDITOR.notes
   tree.autolayout = EDITOR.gui.chkautolayout:GetChecked()
+  tree.fileversionsave = game_version
+  tree.fileversioncreate = EDITOR.fileversioncreate
+
   tree.nodes={}
   for i,v in ipairs(EDITOR.nodes) do
     tree.nodes = state.serializeNode(tree.nodes,v,1)
@@ -1492,6 +1513,8 @@ function state:newTree()
   EDITOR.title = "new Tree"
   EDITOR.filename = ""
   EDITOR.notes=""
+  EDITOR.fileversionsave = game_version
+  EDITOR.fileversioncreate = game_version
 
   EDITOR.nodes = {}
   EDITOR.nodekeys = {}
@@ -1502,6 +1525,9 @@ function state:newTree()
 
   EDITOR.camera = Camera.new(screen_middlex+EDITOR.palettewidth/2,screen_middley-EDITOR.toolbarheight-5, 1, 0)
   state:changedCameraWorld()
+
+  EDITOR.gui.lbl_filename:SetText(EDITOR.filename)
+  EDITOR.gui.txt_title:SetText(EDITOR.title)
 
   EDITOR.mouseaction = nil
 
