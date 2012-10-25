@@ -1,7 +1,7 @@
 -- game infos
 game_id = "BTEditor"
 game_title = "BTEditor"
-game_version = "00.02"
+game_version = "00.10"
 
 -- libraries
 Gamestate = require "lib/gamestate"
