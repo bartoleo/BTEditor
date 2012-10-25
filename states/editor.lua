@@ -9,7 +9,7 @@ local state = Gamestate.editor
 EDITOR={}
 EDITOR.inputenabled = false
 EDITOR.filename = nil
-EDITOR.title = "new Tree"
+EDITOR.title = ""
 EDITOR.nodes = {}
 EDITOR.nodekeys = {}
 EDITOR.nodesize = 0
@@ -33,6 +33,7 @@ EDITOR.commands_queue={}
 EDITOR.fileHistory={}
 EDITOR.nodesNotValid=0
 EDITOR.mousePointer=nil
+EDITOR.notes = ""
 
 function state:enter(pre, action, level,  ...)
 
@@ -47,10 +48,6 @@ function state:enter(pre, action, level,  ...)
   
   loveframes.config["DEBUG"]=false
   
-
-  EDITOR.title = "new Tree"
-  EDITOR.filename = ""
-
   EDITOR.gui = {}
 
   local object
@@ -131,7 +128,33 @@ function state:enter(pre, action, level,  ...)
   tooltip:SetPadding(0)
   tooltip:SetOffsets(-70,30)
   tooltip:SetText("Center on selected node")
-  
+ 
+  object = loveframes.Create("imagebutton")
+  object:SetImage(images.zoomin)
+  object:SizeToImage()
+  object:SetText("")
+  object.OnClick = state.clickEvent
+  list:AddItem(object)
+  EDITOR.gui.zoominbutton = object
+  tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-20,30)
+  tooltip:SetText("Zoom In")
+ 
+  object = loveframes.Create("imagebutton")
+  object:SetImage(images.zoomout)
+  object:SizeToImage()
+  object:SetText("")
+  object.OnClick = state.clickEvent
+  list:AddItem(object)
+  EDITOR.gui.zoomoutbutton = object
+  tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-20,30)
+  tooltip:SetText("Zoom Out")
+
   object = loveframes.Create("text")
   object:SetMaxWidth(32)
   object:SetText(" ")
@@ -194,6 +217,17 @@ function state:enter(pre, action, level,  ...)
   object:SetText(EDITOR.filename)
   EDITOR.gui.lbl_filename = object
 
+  object = loveframes.Create("button")
+  object:SetText("notes")
+  object:SetWidth(40)
+  object.OnClick = state.clickEvent
+  EDITOR.gui.notesbutton = object
+  local tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-30,30)
+  tooltip:SetText("Show/Edit notes")
+
   object = loveframes.Create("text")
   object:SetMaxWidth(40)
   object:SetText("Title:")
@@ -237,29 +271,11 @@ function state:enter(pre, action, level,  ...)
   object.OnTextChanged = state.applyChangesNode
   EDITOR.gui.txt_nodefunc = object
   
-
   state:layoutgui()
-
-  EDITOR.nodes = {}
-  EDITOR.nodekeys = {}
-  EDITOR.nodesize = 0
-  EDITOR.nodesNotValid=0
-  state:addnode(classes.node:new("","Start","","__start__",screen_middlex,32,nil,nil,nil,1))
-  EDITOR.dolayout=true
-
-  EDITOR.camera = Camera.new(screen_middlex+EDITOR.palettewidth/2,screen_middley-EDITOR.toolbarheight-5, 1, 0)
-  state:changedCameraWorld()
-
-  EDITOR.mouseaction = nil
 
   state:loadPalette()
 
-  endx=0
-  startx=0
-  endy=0
-  starty=0
-
-  state:changeNodeSelected(EDITOR.nodes[1])
+  state:newTree()
 
   love.graphics.setBackgroundColor(255, 255, 255)
 
@@ -435,11 +451,11 @@ end
 function state:mousepressed(x, y, button)
 
   loveframes.mousepressed(x, y, button)
+  local _x,_y = EDITOR.camera:worldCoords(x,y)
 
   if EDITOR.inputenabled then
     if y > EDITOR.toolbarheight then
       if x < screen_width - EDITOR.palettewidth then
-        local _x,_y = EDITOR.camera:worldCoords(x,y)
         if (button=="l" or button=="r") and state:nodeHit(EDITOR.nodekeys,_x,_y) then
           state:changeNodeSelected(state:nodeHit(EDITOR.nodekeys,_x,_y))
           startx,starty = _x,_y
@@ -546,8 +562,19 @@ function state.clickEvent(object, mousex , mousey)
   if object==EDITOR.gui.centerbutton then
     state:centerNode(EDITOR.nodeselected)
   end
+  if object==EDITOR.gui.zoominbutton then
+    local _x,_y = EDITOR.camera:worldCoords(screen_middlex-EDITOR.palettewidth/2,screen_middley+EDITOR.toolbarheight/2)
+    state:zoom(_x,_y,1.5)
+  end
+  if object==EDITOR.gui.zoomoutbutton then
+    local _x,_y = EDITOR.camera:worldCoords(screen_middlex-EDITOR.palettewidth/2,screen_middley+EDITOR.toolbarheight/2)
+    state:zoom(_x,_y,1/1.5)
+  end
   if object==EDITOR.gui.helpbutton then
     state.createDialogHelp()
+  end
+  if object==EDITOR.gui.notesbutton then
+    state.createDialogNotes()
   end
 end
 
@@ -565,7 +592,7 @@ function state.createDialog(onClose,ptype,...)
 
     if ptype=="open" then
       frame:SetName("Open File")
-      frame:SetSize(650, 210)
+      frame:SetSize(650, 240)
       frame:Center()
       local object = loveframes.Create("text",frame)
       object:SetText("Filename to open : ")
@@ -580,7 +607,7 @@ function state.createDialog(onClose,ptype,...)
 
     if ptype=="save" then
       frame:SetName("Save File")
-      frame:SetSize(650, 210)
+      frame:SetSize(650, 240)
       frame:Center()
       local object = loveframes.Create("text",frame)
       object:SetText("Filename to save : ")
@@ -595,7 +622,7 @@ function state.createDialog(onClose,ptype,...)
     
     if ptype=="alert" then
       frame:SetName("Warning!")
-      frame:SetSize(500, 210)
+      frame:SetSize(500, 240)
       frame:Center()
       local text = loveframes.Create("text",frame)
       text:SetText(arg[1])
@@ -621,6 +648,11 @@ function state.createDialog(onClose,ptype,...)
       object:SetWidth(450)
       object.OnChoiceSelected = function(object, choice) EDITOR.gui.dialog.txt_filename:SetText( choice ) end
       EDITOR.gui.dialog.cmbfilehistory=object
+
+      local text = loveframes.Create("text",frame)
+      text:SetText("(file format is Lua or Json (extension of file must be .json)")
+      text:SetPos(15, 180)
+
     end
 
     local object = loveframes.Create("button",frame)
@@ -673,6 +705,15 @@ function state.createDialogHelp()
   
  Bart van Strien for SECS class 
  [love2d.org/wiki/Simple_Educative_Class_System] 
+ ---------------------------------------------------------------------------- 
+]===])
+    list1:AddItem(text1)    
+    local text1 = loveframes.Create("text")
+    text1:SetText([===[Use mouse to drag nodes from the palette to the right onto other nodeselected 
+ Use mouse left button to move nodes (horizzontaly not over other nodes) 
+ Use mouse right button to move nodes between nodes 
+ Use mouse wheel to zoom in/zoom out 
+ Load and save works in Lua or Json (file must have extension .json) 
 ]===])
     list1:AddItem(text1)    
 
@@ -691,7 +732,7 @@ function state.createDialogOptions()
     frame:SetName("Options")
     frame:SetModal (true)
     frame:ShowCloseButton(false)
-    frame:SetSize(400, 180)
+    frame:SetSize(400, 210)
     frame.OnClose = onClose
     frame:Center()
     EDITOR.gui.dialog = frame
@@ -701,10 +742,10 @@ function state.createDialogOptions()
     local object =loveframes.Create("text",frame)
     object:SetPos(10, 45+5)
     object:SetMaxWidth(80)
-    object:SetText("Resolution")
+    object:SetText("Resolution:")
 
     object = loveframes.Create("multichoice",frame)
-    object:SetPos(80, 45)
+    object:SetPos(100, 45)
     local _modes=love.graphics.getModes()
     table.sort(_modes, function(a, b) return a.width*a.height < b.width*b.height end)  
     local _values={}
@@ -725,17 +766,41 @@ function state.createDialogOptions()
       object:AddChoice(v)
     end
     object:SetChoice(_value)
+    object.OnChoiceSelected = function(object, choice) local _res = split(EDITOR.gui.dialog.cmbresolution:GetChoice(),"x") EDITOR.gui.dialog.txt_customwidth:SetText( _res[1] ) EDITOR.gui.dialog.txt_customheight:SetText( _res[2] )  end
     EDITOR.gui.dialog.cmbresolution=object
+    
+    local object =loveframes.Create("text",frame)
+    object:SetPos(10, 80)
+    object:SetMaxWidth(100)
+    object:SetText("Custom Width:")
+    EDITOR.gui.dialog.lbl_customwidth=object
+    
+    local object =loveframes.Create("textinput",frame)
+    object:SetPos(100, 75)
+    object:SetText("".._G.screen_width)
+    object:SetWidth(70)
+    EDITOR.gui.dialog.txt_customwidth=object
+
+    local object =loveframes.Create("text",frame)
+    object:SetPos(180, 80)
+    object:SetMaxWidth(50)
+    object:SetText("Height:")
+    EDITOR.gui.dialog.lbl_customwidth=object
+    
+    local object =loveframes.Create("textinput",frame)
+    object:SetPos(230, 75)
+    object:SetText("".._G.screen_height)
+    object:SetWidth(70)
+    EDITOR.gui.dialog.txt_customheight=object
 
     object = loveframes.Create("checkbox",frame)
-    object:SetPos(80, 75)
+    object:SetPos(100, 105)
     object:SetText("Fullscreen")
     object:SetChecked(screen_fullscreen)
     EDITOR.gui.dialog.chkfullscreen=object
 
     object = loveframes.Create("checkbox",frame)
-    object:SetPos(80, 105)
-    object:SetText("VSync")
+    object:SetPos(100, 135)    object:SetText("VSync")
     object:SetChecked(screen_vsync)
     EDITOR.gui.dialog.chkvsync=object
 
@@ -751,8 +816,7 @@ end
 
 function state.closeDialogOptions()
     if EDITOR.gui.dialog.returnvalue==true then
-      local _res = split(EDITOR.gui.dialog.cmbresolution:GetChoice(),"x")
-      if changeScreenMode({width=_res[1],height=_res[2],fullscreen=EDITOR.gui.dialog.chkfullscreen:GetChecked(),vsync=EDITOR.gui.dialog.chkvsync:GetChecked(),fsaa=0}) then
+      if changeScreenMode({width=EDITOR.gui.dialog.txt_customwidth:GetText(),height=EDITOR.gui.dialog.txt_customheight:GetText(),fullscreen=EDITOR.gui.dialog.chkfullscreen:GetChecked(),vsync=EDITOR.gui.dialog.chkvsync:GetChecked(),fsaa=0}) then
         getScreenMode()
         saveScreenMode("configs.txt")
       end
@@ -763,13 +827,61 @@ function state.closeDialogOptions()
     end
 end
 
-function state.drawGrid()
-    love.graphics.setColor(0,0,0,24)
-    for i=1,screen_height/EDITOR.gridsize do
-      love.graphics.line(0,i*EDITOR.gridsize,screen_width,i*EDITOR.gridsize)
+function state.createDialogNotes()
+
+    EDITOR.inputenabled = false
+
+    local frame = loveframes.Create("frame")
+    frame:SetName("Note")
+    frame:SetModal (true)
+    frame:ShowCloseButton(false)
+    frame:SetSize(500, 450)
+    frame.OnClose = funcnil
+    frame:Center()
+    EDITOR.gui.dialog = frame
+    EDITOR.gui.dialog.returnvalue = false
+    EDITOR.gui.dialog.OnClose = state.closeDialogNotes
+    
+    local object =loveframes.Create("textinput",frame)
+    object:SetPos(10, 38)
+    object:SetMultiline(true)
+    object:ShowLineNumbers(false)
+    object:SetSize(480, 360)
+    object:SetText(EDITOR.notes)
+    object:SetFocus(true)
+    EDITOR.gui.dialog.txtnotes=object
+
+    local object = loveframes.Create("button",frame)
+    object:SetPos(frame:GetWidth()/2-10-object:GetWidth(),frame:GetHeight()-30)
+    object:SetText("Apply")
+    object.OnClick = function() EDITOR.gui.dialog.returnvalue = true if (EDITOR.gui.dialog.OnClose) then EDITOR.gui.dialog.OnClose(EDITOR.gui.dialog) end EDITOR.gui.dialog:Remove() EDITOR.inputenabled = true end
+    object = loveframes.Create("button",frame)
+    object:SetText("Cancel")
+    object:SetPos(frame:GetWidth()/2+10,frame:GetHeight()-30)
+    object.OnClick = function() EDITOR.gui.dialog.returnvalue = false if (EDITOR.gui.dialog.OnClose) then EDITOR.gui.dialog.OnClose(EDITOR.gui.dialog) end EDITOR.gui.dialog:Remove() EDITOR.inputenabled = true end
+end
+
+function state.closeDialogNotes()
+    if EDITOR.gui.dialog.returnvalue==true then
+      EDITOR.notes = EDITOR.gui.dialog.txtnotes:GetText()
     end
-    for i=1,screen_width/EDITOR.gridsize do
-      love.graphics.line(i*EDITOR.gridsize,0,i*EDITOR.gridsize,screen_height)
+end
+
+function state.drawGrid()
+    love.graphics.setColor(200,200,200,150)
+  
+    if EDITOR.camera.zoom *EDITOR.gridsize > 5 then
+      ax=EDITOR.cameraworld.x1-EDITOR.cameraworld.x1%EDITOR.gridsize
+      ay=EDITOR.cameraworld.y1-EDITOR.cameraworld.y1%EDITOR.gridsize
+      dx=EDITOR.cameraworld.x2-EDITOR.cameraworld.x2%EDITOR.gridsize+EDITOR.gridsize
+      dy=EDITOR.cameraworld.y2-EDITOR.cameraworld.y2%EDITOR.gridsize+EDITOR.gridsize
+  
+      for i=ax,dx,EDITOR.gridsize do
+        love.graphics.line(i,ay,i,dy)
+      end
+      for i=ay,dy,EDITOR.gridsize do 
+        love.graphics.line(ax,i,dx,i)
+      end
     end
 end
 
@@ -825,6 +937,7 @@ function state:changeNodeSelected(pnode)
       EDITOR.gui.txt_nodename:SetVisible(true)
       EDITOR.gui.lbl_nodefunc:SetVisible(true)
       EDITOR.gui.txt_nodefunc:SetVisible(true)
+      EDITOR.gui.txt_nodefunc:SetFocus(true)
       state.positionEditNode()
     end
   end
@@ -986,21 +1099,14 @@ function state:layoutgui()
   EDITOR.gui.lbl_filename:SetPos(70, 35)
   EDITOR.gui.lbl_title:SetPos(400, 40)
   EDITOR.gui.txt_title:SetPos(440, 35)
+  EDITOR.gui.notesbutton:SetPos(740, 35)
   EDITOR.gui.toolbar:SetPos(0,0)
   EDITOR.gui.divisorcenter:SetMaxWidth(0)
   EDITOR.gui.toolbar:SetSize(screen_width,32)
-  EDITOR.gui.divisorcenter:SetMaxWidth(screen_width-423)
+  EDITOR.gui.divisorcenter:SetMaxWidth(screen_width-480)
   EDITOR.gui.toolbar:RedoLayout ()
   EDITOR.firstdraw = 2
 
-  --[[EDITOR.gui.fileopenbutton:SetPos(375, 5)
-  EDITOR.gui.filesavebutton:SetPos(375+24+5, 5)
-  EDITOR.gui.filesaveasbutton:SetPos(375+24*2+5*2, 5)
-  
-  EDITOR.gui.helpbutton:SetPos(screen_width-24*1-5*1, 5)
-  EDITOR.gui.optionsbutton:SetPos(screen_width-24*2-5*2, 5)
-  EDITOR.gui.binbutton:SetPos(screen_width-24*3-5*3, 5)
-  EDITOR.gui.chkautolayout:SetPos(screen_width-24*4-5*4-70, 5)]]--
 end
 
 function state:moveNode(pnode,pdx,pdy,precursive)
@@ -1251,6 +1357,7 @@ end
 function state.serializeTree()
   local tree={}
   tree.title = EDITOR.title
+  tree.notes = EDITOR.notes
   tree.autolayout = EDITOR.gui.chkautolayout:GetChecked()
   tree.nodes={}
   for i,v in ipairs(EDITOR.nodes) do
@@ -1379,4 +1486,29 @@ function state:zoom(xc,yc,zoom)
   _xc2,_yc2=EDITOR.camera:worldCoords(_xs,_ys)
   EDITOR.camera = Camera.new(xc-_xc2+xc,yc-_yc2+yc,_newzoom,EDITOR.camera.rot)
   state:changedCameraWorld()
+end
+
+function state:newTree()
+  EDITOR.title = "new Tree"
+  EDITOR.filename = ""
+  EDITOR.notes=""
+
+  EDITOR.nodes = {}
+  EDITOR.nodekeys = {}
+  EDITOR.nodesize = 0
+  EDITOR.nodesNotValid=0
+  state:addnode(classes.node:new("","Start","","__start__",screen_middlex,32,nil,nil,nil,1))
+  EDITOR.dolayout=true
+
+  EDITOR.camera = Camera.new(screen_middlex+EDITOR.palettewidth/2,screen_middley-EDITOR.toolbarheight-5, 1, 0)
+  state:changedCameraWorld()
+
+  EDITOR.mouseaction = nil
+
+  endx=0
+  startx=0
+  endy=0
+  starty=0
+
+  state:changeNodeSelected(EDITOR.nodes[1])
 end

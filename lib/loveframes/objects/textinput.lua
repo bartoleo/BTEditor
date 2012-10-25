@@ -564,6 +564,38 @@ function textinput:RunKey(key, unicode)
 				self.offsetx = self.offsetx - cwidth
 			end
 		end
+	elseif key == "delete" then-- leo
+		if not editable then
+			return
+		end
+		local curindicatornum = self.indicatornum
+		if alltextselected then
+			self:Clear()
+			self.alltextselected = false
+			indicatornum = self.indicatornum
+		else
+			if text ~= "" then
+				text = self:RemoveFromeText(indicatornum+1)
+				if ontextchanged then
+					ontextchanged(self, "")
+				end
+				lines[line] = text
+			end
+			if multiline then
+				if line < #lines and curindicatornum == #lines[self.line] then
+					local newindicatornum = 0
+					local oldtext         = lines[line+1]
+					table.remove(lines, line+1)
+					if #oldtext > 0 then
+						lines[self.line] = lines[self.line] .. oldtext
+					end
+				end
+			end
+			local cwidth = font:getWidth(text:sub(#text))
+			if self.offsetx ~= 0 then
+				self.offsetx = self.offsetx - cwidth
+			end
+		end-- leo
 	elseif key == "return" or key == "kpenter" then
 	
 		-- call onenter if it exists
@@ -1109,6 +1141,9 @@ function textinput:SetText(text)
 	if multiline then
 		text = text:gsub(string.char(92) .. string.char(110), string.char(10))
 		local t = loveframes.util.SplitString(text, string.char(10))
+		if text==nil or text=="" then --leo
+			t={""} -- leo
+		end -- leo
 		self.lines = t
 	else
 		text = text:gsub(string.char(92) .. string.char(110), "")
@@ -1125,12 +1160,15 @@ end
 --]]---------------------------------------------------------
 function textinput:GetText()
 
-	local multiline = self.mutliline
+	local multiline = self.multiline
 	local lines     = self.lines
 	local text      = ""
 	
 	if multiline then
 		for k, v in ipairs(lines) do
+			if k > 1 then-- leo
+				text = text .. string.char(10)-- leo
+			end-- leo
 			text = text .. v
 		end
 	else

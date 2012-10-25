@@ -5,7 +5,7 @@
 
 local BASE = (...) .. '.'
 if string.sub(BASE,-5)=="init." then
-	BASE = string.sub(BASE,1,string.len(BASE)-5)
+	BASE = string.sub(BASE,1,string.len(BASE)-6)
 end
 
 -- central library table

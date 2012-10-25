@@ -20,7 +20,7 @@ function node:init(pname,ptype,pfunc,pid,px,py,pwidth,pheight,pparent,pindexchil
   if pwidth==nil then
     self:changeWidth()
   end
-  self.height = nvl(pheight,EDITOR.fontsize*1+EDITOR.fontsize*self.textlines)
+  self.height = nvl(pheight,EDITOR.fontsize*2+EDITOR.fontsize*self.textlines)
   self.selected = false
   self.parent = pparent
   self.children={}
