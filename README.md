@@ -1,5 +1,5 @@
 BTEditor
-----------------------
+========================================================================
 
 [L&Ouml;VE][LOVE] Behaviour Tree Editor
 
@@ -13,11 +13,12 @@ vrld for [HUMP][hump] lib
 
 Bart van Strien for [SECS][SECS] class 
  
-----------------------
-Use mouse left button to move nodes (horizzontaly not over other nodes) 
-Use mouse right button to move nodes between nodes 
-Use mouse wheel to zoom in/zoom out 
-Load and save works in Lua Format or Json (file must have extension .json) 
+Instructions
+-------------------------------------------------------------------------
+Use mouse left button to move nodes (horizzontaly not over other nodes)  
+Use mouse right button to move nodes between nodes  
+Use mouse wheel to zoom in/zoom out  
+Load and save works in Lua Format or Json (file must have extension .json)  
 
 [LOVE]: http://love2d.org
 [LOVEFRAMES]: http://github.com/NikolaiResokav/LoveFrames
