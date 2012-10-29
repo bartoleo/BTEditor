@@ -80,7 +80,7 @@ function node:draw(pclipifoutsidecamera)
     end
     love.graphics.setFont(fonts[","..EDITOR.fontsize])
     if self.type=="Start" then
-      love.graphics.setColor(255,150,80,255)
+      love.graphics.setColor(255,255,255,255)
       love.graphics.circle("fill",self.x+self.width/2,self.y+self.height/2,self.height/2)
       love.graphics.setColor(0,0,0,255)
       love.graphics.circle("line",self.x+self.width/2,self.y+self.height/2,self.height/2)
@@ -93,7 +93,7 @@ function node:draw(pclipifoutsidecamera)
       end
     end
     if self.type=="Selector" or self.type=="RandomSelector" then
-      love.graphics.setColor(255,150,80,255)
+      love.graphics.setColor(255,150,70,255)
       love.graphics.polygon("fill",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
       love.graphics.setColor(0,0,0,255)
       love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
@@ -127,6 +127,25 @@ function node:draw(pclipifoutsidecamera)
       end
       love.graphics.setColor(255,255,255,255)
       love.graphics.draw(images.sequence,self.x+2,self.y+2)
+      if self.children and #self.children>0 then
+        local _minx, _maxx, _avgy, _child
+        for i=1,#self.children do
+          _child = self.children[i]
+          if i==1 or _child.x+_child.width/2<_minx then
+            _avgy = (self.y+self.height+_child.y)/2
+            _minx = _child.x+_child.width/2
+          end
+          if i==1 or _child.x+_child.width/2>_maxx then
+            _maxx = _child.x+_child.width/2
+          end
+        end
+        if _minx == _maxx then
+          _minx = _minx - 10
+          _maxx = _maxx + 10
+        end
+        love.graphics.setColor(128,128,128,255)
+        EDITOR.drawArrow(_minx,_avgy,_maxx,_avgy)
+      end
     end
     if self.type=="Action" then
       love.graphics.setColor(150,150,255,255)
@@ -143,7 +162,7 @@ function node:draw(pclipifoutsidecamera)
       love.graphics.setColor(255,255,255,255)
       love.graphics.draw(images.action,self.x+2,self.y+2)
     end
-    if self.type=="Decorator" or self.type=="RepeatUntil" or self.type=="Continue"  or self.type=="Wait" or self.type=="WaitContinue"then
+    if self.type=="Decorator" or self.type=="RepeatUntil" or self.type=="Continue"  or self.type=="Wait" or self.type=="WaitContinue" or self.type == "Filter" then
       love.graphics.setColor(255,255,100,255)
       love.graphics.polygon("fill",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
       love.graphics.setColor(0,0,0,255)
@@ -154,6 +173,10 @@ function node:draw(pclipifoutsidecamera)
         love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
         love.graphics.setLineWidth(3)
         love.graphics.setColor(0,0,0,255)
+      end
+      if self.type == "Filter" then
+        love.graphics.setColor(255,255,255,255)
+        love.graphics.draw(images.condition,self.x+2,self.y+2)
       end
     end
     if self.type=="Condition" then
@@ -187,13 +210,15 @@ function node:draw(pclipifoutsidecamera)
   end
   love.graphics.setLineWidth(1)
   
-  if self.parent then
+  if self.parent and self.parent.children then
     local _drawarrow = true
     if _draw==false then
+      -- TODO add filter to avoid drawing arrows outside 'screen'
     end
     if _drawarrow then
       love.graphics.setColor(0,0,0,255)
-      EDITOR.drawArrow(self.parent.x+self.parent.width/2,self.parent.y+self.parent.height+2,self.x+self.width/2,self.y-2)
+      local _position_child = 0.25+(self.indexchild/(#self.parent.children+1))/2
+      EDITOR.drawArrow(self.parent.x+self.parent.width*_position_child,self.parent.y+self.parent.height+2,self.x+self.width/2,self.y-2)
     end
   end
   --if self.children then
@@ -219,48 +244,60 @@ function node:validate()
   if self.type == "Start" then
     if self.children==nil or #self.children==0 then
       _valid = false
-      _validtext = _validtext.."At least one child node"
+      _validtext = _validtext..", At least one child node"
+    end
+    if self.children~=nil and #self.children>1 then
+      _valid = false
+      _validtext = _validtext..", Only one child allowed"
     end
   elseif self.type=="Selector" or self.type=="RandomSelector" then
     if self.children==nil or #self.children==0 then
       _valid = false
-      _validtext = _validtext.."At least one child node"
+      _validtext = _validtext..", At least one child node"
     end
   elseif self.type == "Sequence" then
     if self.children==nil or #self.children==0 then
       _valid = false
-      _validtext = _validtext.."At least one child node"
+      _validtext = _validtext..", At least one child node"
     end
   elseif self.type == "Condition" then
     if self.children~=nil and #self.children>0 then
       _valid = false
-      _validtext = _validtext.."Childs are forbidden"
+      _validtext = _validtext..", Childs are forbidden"
     end
     if self.func==nil or self.func=="" then
       _valid = false
-      _validtext = _validtext.."Define a function for condition node"
+      _validtext = _validtext..", Define a function for condition node"
     end
   elseif self.type == "Action" then
     if self.children~=nil and #self.children>0 then
       _valid = false
-      _validtext = _validtext.."Children are forbidden"
+      _validtext = _validtext..", Children are forbidden"
     end
     if self.func==nil or self.func=="" then
       _valid = false
-      _validtext = _validtext.."Define a function for action node"
+      _validtext = _validtext..", Define a function for action node"
     end
-  elseif self.type=="Decorator" or self.type=="RepeatUntil" or self.type=="Continue"  or self.type=="Wait" or self.type=="WaitContinue" then
+  elseif self.type=="Decorator" or self.type=="RepeatUntil" or self.type=="Continue"  or self.type=="Wait" or self.type=="WaitContinue" or self.type == "Filter" then
     if self.children==nil or #self.children==0 then
       _valid = false
-      _validtext = _validtext.."At least one child"
+      _validtext = _validtext..", At least one child"
     end
     if self.children~=nil and #self.children>1 then
       _valid = false
-      _validtext = _validtext.."Only one child allowed"
+      _validtext = _validtext..", Only one child allowed"
+    end
+    if self.type == "Filter" then
+      if self.func==nil or self.func=="" then
+        _valid = false
+        _validtext = _validtext..", Define a function for filter node"
+      end
     end
   end   
   if _validtext =="" then
     _validtext = nil
+  elseif string.sub(_validtext,1,2) == ", " then
+    _validtext = string.sub(_validtext,3,string.len(_validtext))
   end
   self.valid = _valid
   self.validtext = _validtext

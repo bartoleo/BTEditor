@@ -539,10 +539,10 @@ function textinput:RunKey(key, unicode)
 			if text ~= "" then
 				text = self:RemoveFromeText(indicatornum)
 				self:MoveIndicator(-1)
+				lines[line] = text
 				if ontextchanged then
 					ontextchanged(self, "")
 				end
-				lines[line] = text
 			end
 			if multiline then
 				if line > 1 and curindicatornum == 0 then
@@ -576,10 +576,10 @@ function textinput:RunKey(key, unicode)
 		else
 			if text ~= "" then
 				text = self:RemoveFromeText(indicatornum+1)
+				lines[line] = text
 				if ontextchanged then
 					ontextchanged(self, "")
 				end
-				lines[line] = text
 			end
 			if multiline then
 				if line < #lines and curindicatornum == #lines[self.line] then

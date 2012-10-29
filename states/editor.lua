@@ -27,7 +27,7 @@ EDITOR.statusbarheight=20
 EDITOR.palettewidth=120
 EDITOR.cameraworld={x1=0,y1=0,x2=0,y2=0}
 EDITOR.palette={}
-EDITOR.palettenodeheight = 60
+EDITOR.palettenodeheight = 40
 EDITOR.palettenodeselected = nil
 EDITOR.filename = ""
 EDITOR.firstdraw = 2
@@ -286,6 +286,30 @@ function state:enter(pre, action, level,  ...)
   object.OnTextChanged = state.applyChangesNode
   EDITOR.gui.txt_nodefunc = object
   
+  object = loveframes.Create("button")
+  object:SetText("<<")
+  object:SetWidth(17)
+  object:SetHeight(17)
+  object.OnClick = state.clickEvent
+  EDITOR.gui.btn_movebefore = object
+  local tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-100,30)
+  tooltip:SetText("Move node before previous node")
+
+  object = loveframes.Create("button")
+  object:SetText(">>")
+  object:SetWidth(17)
+  object:SetHeight(17)
+  object.OnClick = state.clickEvent
+  EDITOR.gui.btn_moveafter = object
+  local tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-80,30)
+  tooltip:SetText("Move node after next node")
+
   state:layoutGui()
 
   state:loadPalette()
@@ -308,7 +332,6 @@ end
 
 function state:leave()
   --profiler.stop()
-  collectgarbage("restart")
 end
 
 function state:update(dt) 
@@ -515,7 +538,7 @@ function state:mousereleased(x, y, button)
       elseif button == "r" then
         local _targetnode = state:nodeHit(EDITOR.nodekeys,endx,endy)
         if _targetnode and _targetnode ~= EDITOR.nodeselected and EDITOR.nodeselected~=EDITOR.nodes then
-          state:moveNodeParent(EDITOR.nodeselected,_targetnode)
+          state:changeNodeParent(EDITOR.nodeselected,_targetnode)
         else
           state:moveNode(EDITOR.nodeselected,-startx+endx,0,true)
         end
@@ -593,6 +616,12 @@ function state.clickEvent(object, mousex , mousey)
   end
   if object==EDITOR.gui.notesbutton then
     state.createDialogNotes()
+  end
+  if object==EDITOR.gui.btn_movebefore then
+    state:switchOrderNodes(-1)
+  end
+  if object==EDITOR.gui.btn_moveafter then
+    state:switchOrderNodes(1)
   end
 end
 
@@ -926,10 +955,14 @@ function state:addnode(pnode)
   end
   EDITOR.nodekeys[pnode.id]=pnode
   state:updateNodes()
+  state:refreshNodeEditBox()
 end
 
 function state:changeNodeSelected(pnode)
   if pnode then
+    if EDITOR.nodeselected and EDITOR.nodeselected.type~="Start" then
+      state.applyChangesNode()
+    end
     EDITOR.nodeselected = pnode
     for i,v in pairs(EDITOR.nodekeys) do
        if v.id == pnode.id then
@@ -938,26 +971,7 @@ function state:changeNodeSelected(pnode)
          v.selected=false
        end
     end
-    EDITOR.gui.txt_nodetype:SetText(EDITOR.nodeselected.type)
-    EDITOR.gui.txt_nodename:SetText(EDITOR.nodeselected.name)
-    EDITOR.gui.txt_nodefunc:SetText(EDITOR.nodeselected.func)
-    if EDITOR.nodeselected.type=="Start" then
-      EDITOR.gui.lbl_nodetype:SetVisible(false)
-      EDITOR.gui.txt_nodetype:SetVisible(false)
-      EDITOR.gui.lbl_nodename:SetVisible(false)
-      EDITOR.gui.txt_nodename:SetVisible(false)
-      EDITOR.gui.lbl_nodefunc:SetVisible(false)
-      EDITOR.gui.txt_nodefunc:SetVisible(false)
-    else
-      EDITOR.gui.lbl_nodetype:SetVisible(true)
-      EDITOR.gui.txt_nodetype:SetVisible(true)
-      EDITOR.gui.lbl_nodename:SetVisible(true)
-      EDITOR.gui.txt_nodename:SetVisible(true)
-      EDITOR.gui.lbl_nodefunc:SetVisible(true)
-      EDITOR.gui.txt_nodefunc:SetVisible(true)
-      EDITOR.gui.txt_nodefunc:SetFocus(true)
-      state.positionEditNode()
-    end
+    state:refreshNodeEditBox()
   end
 
 end
@@ -1074,17 +1088,20 @@ function state:updateNodes()
   EDITOR.nodesize = 0
   EDITOR.nodelevels = 0
   EDITOR.nodesNotValid = 0
-  local levelindex =0
+  local _levelindex =0
+  local _indexchild = 0
   for i,v in ipairs(EDITOR.nodes) do
     v.level = 1
+    _indexchild = _indexchild + 1
     if v.level > EDITOR.nodelevels then
       EDITOR.nodelevels = v.level
     end
-    levelindex=state:updatenode(v,levelindex)
+    v.indexchild = _indexchild
+    _levelindex=state:updatenode(v,_levelindex)
   end
 end
 function state:updatenode(pnode,plevelindex)
-   local levelindex=plevelindex
+   local _levelindex=plevelindex
    EDITOR.nodesize = EDITOR.nodesize + 1
    if pnode.parent~=nil then
      pnode.level = pnode.parent.level+1
@@ -1092,17 +1109,20 @@ function state:updatenode(pnode,plevelindex)
    if pnode.level > EDITOR.nodelevels then
       EDITOR.nodelevels = pnode.level
    end
-   levelindex=levelindex+1
-   pnode.levelindex = levelindex
+   _levelindex=_levelindex+1
+   pnode.levelindex = _levelindex
    if pnode.children then
+    local _indexchild = 0
      for i,v in ipairs(pnode.children) do
-       levelindex=state:updatenode(v,levelindex)
+       _indexchild = _indexchild + 1
+       v.indexchild = _indexchild
+       _levelindex=state:updatenode(v,_levelindex)
      end
    end
    if pnode:validate() == false then
       EDITOR.nodesNotValid=EDITOR.nodesNotValid+1
    end
-   return levelindex
+   return _levelindex
 end
 
 function EDITOR.drawArrow(x1,y1,x2,y2)
@@ -1154,7 +1174,7 @@ function state:changedCameraWorld()
   state.positionEditNode()
 end
 
-function state:moveNodeParent(pnode,pnewparent)
+function state:changeNodeParent(pnode,pnewparent)
   if pnode~=pnewparent then
     _checkifchildren = false
     _checkifchildren = state:checkIfChildren(pnode,pnewparent)
@@ -1165,6 +1185,7 @@ function state:moveNodeParent(pnode,pnewparent)
         for i,v in ipairs(pnode.parent.children) do
           if v==pnode then
             _index = i
+            break
           end
         end
         table.remove(pnode.parent.children,_index)
@@ -1177,6 +1198,53 @@ function state:moveNodeParent(pnode,pnewparent)
     end 
     state:updateNodes()
     EDITOR.dolayout = true
+  end
+end
+
+function state:switchOrderNodes(pnewpos)
+  if EDITOR.nodeselected and EDITOR.nodeselected.parent and EDITOR.nodeselected.parent.children then
+    local _index
+    for i,v in ipairs(EDITOR.nodeselected.parent.children) do
+      if v==EDITOR.nodeselected then
+        _index = i
+        break
+      end
+    end
+    if _index then
+      local _newindex = _index+pnewpos
+      if EDITOR.nodeselected.parent.children[_newindex] then
+        state:switchNodes(EDITOR.nodeselected,EDITOR.nodeselected.parent.children[_newindex])
+      end
+    end
+  end
+end
+
+function state:switchNodes(pnode1,pnode2)
+  if pnode1 and pnode2 and pnode1~=pnode2 then
+    local _index1,_index2
+    if pnode1.parent then
+      for i,v in ipairs(pnode1.parent.children) do
+        if v==pnode1 then
+          _index1 = i
+          break
+        end
+      end
+    end 
+    if pnode2.parent then
+      for i,v in ipairs(pnode2.parent.children) do
+        if v==pnode2 then
+          _index2 = i
+          break
+        end
+      end
+    end
+    if _index1 and _index2 then
+      pnode1.parent.children[_index1]=pnode2
+      pnode2.parent.children[_index2]=pnode1
+    end
+    state:updateNodes()
+    EDITOR.dolayout = true
+    state:refreshNodeEditBox()
   end
 end
 
@@ -1225,15 +1293,16 @@ function state:deleteNode(pnode,external)
 end
 
 function state:loadPalette()
-  table.insert(EDITOR.palette, classes.node:new("","Selector","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*0,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","RandomSelector","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*1,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","Sequence","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*2,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","Condition","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*3,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","Action","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*4,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","RepeatUntil","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*5,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","Continue","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*6,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","Wait","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*7,nil,nil,nil,nil))
-  table.insert(EDITOR.palette, classes.node:new("","WaitContinue","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+EDITOR.palettenodeheight*8,nil,nil,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Selector","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*0,nil,EDITOR.palettenodeheight,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","RandomSelector","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*1,nil,EDITOR.palettenodeheight,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Sequence","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*2,nil,EDITOR.palettenodeheight,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Condition","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*3,nil,EDITOR.palettenodeheight,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Action","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*4,nil,EDITOR.palettenodeheight,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","RepeatUntil","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*5,nil,EDITOR.palettenodeheight,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Continue","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*6,nil,EDITOR.palettenodeheight,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Wait","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*7,nil,EDITOR.palettenodeheight,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","WaitContinue","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*8,nil,EDITOR.palettenodeheight,nil,nil))
+  table.insert(EDITOR.palette, classes.node:new("","Filter","",nil,screen_width-EDITOR.palettewidth+5,EDITOR.toolbarheight+5+(EDITOR.palettenodeheight+5)*9,nil,EDITOR.palettenodeheight,nil,nil))
 end
 
 function state:changePaletteNodeSelected(pnode)
@@ -1458,8 +1527,10 @@ end
 
 function state.positionEditNode()
   if EDITOR.nodeselected then
-    local _x,_y = EDITOR.camera:cameraCoords(EDITOR.nodeselected.x,EDITOR.nodeselected.y)
-    local _width,_height = EDITOR.camera:cameraCoords(EDITOR.nodeselected.x+EDITOR.nodeselected.width,EDITOR.nodeselected.y+EDITOR.nodeselected.height)
+    local _xo,_yo = EDITOR.camera:cameraCoords(EDITOR.nodeselected.x,EDITOR.nodeselected.y)
+    local _x,_y = _xo,_yo
+    local _widtho,_heighto = EDITOR.camera:cameraCoords(EDITOR.nodeselected.x+EDITOR.nodeselected.width,EDITOR.nodeselected.y+EDITOR.nodeselected.height)
+    local _width,_height = _widtho,_heighto
     if _x+339 > screen_width-EDITOR.palettewidth then
       _width = _width + (screen_width-EDITOR.palettewidth-_x-339)
       _x = _x + (screen_width-EDITOR.palettewidth-_x-339)
@@ -1475,6 +1546,8 @@ function state.positionEditNode()
     EDITOR.gui.lbl_nodefunc:SetPos(_x+2,_height+25)
     EDITOR.gui.txt_nodefunc:SetPos(_x+35,_height+20)
     EDITOR.box={x=_x,y=_y,width=_width,height=_height}
+    EDITOR.gui.btn_movebefore:SetPos(_xo-19,_yo)
+    EDITOR.gui.btn_moveafter:SetPos(_widtho+2,_yo)
   end
 end
 
@@ -1537,4 +1610,43 @@ function state:newTree()
   starty=0
 
   state:changeNodeSelected(EDITOR.nodes[1])
+end
+
+function state:refreshNodeEditBox()
+  if EDITOR.nodeselected then
+    EDITOR.gui.txt_nodetype:SetText(EDITOR.nodeselected.type)
+    EDITOR.gui.txt_nodename:SetText(EDITOR.nodeselected.name)
+    EDITOR.gui.txt_nodefunc:SetText(EDITOR.nodeselected.func)
+    if EDITOR.nodeselected.type=="Start" then
+      EDITOR.gui.lbl_nodetype:SetVisible(false)
+      EDITOR.gui.txt_nodetype:SetVisible(false)
+      EDITOR.gui.lbl_nodename:SetVisible(false)
+      EDITOR.gui.txt_nodename:SetVisible(false)
+      EDITOR.gui.lbl_nodefunc:SetVisible(false)
+      EDITOR.gui.txt_nodefunc:SetVisible(false)
+      EDITOR.gui.btn_movebefore:SetVisible(false)
+      EDITOR.gui.btn_moveafter:SetVisible(false)
+    else
+      EDITOR.gui.lbl_nodetype:SetVisible(true)
+      EDITOR.gui.txt_nodetype:SetVisible(true)
+      EDITOR.gui.lbl_nodename:SetVisible(true)
+      EDITOR.gui.txt_nodename:SetVisible(true)
+      EDITOR.gui.lbl_nodefunc:SetVisible(true)
+      EDITOR.gui.txt_nodefunc:SetVisible(true)
+      EDITOR.gui.txt_nodefunc:SetFocus(true)
+      if EDITOR.nodeselected.parent and EDITOR.nodeselected.parent.children then
+        if EDITOR.nodeselected.indexchild==1 then
+          EDITOR.gui.btn_movebefore:SetVisible(false)
+        else
+          EDITOR.gui.btn_movebefore:SetVisible(true)
+        end
+        if EDITOR.nodeselected.indexchild >= #EDITOR.nodeselected.parent.children  then
+            EDITOR.gui.btn_moveafter:SetVisible(false)
+        else
+            EDITOR.gui.btn_moveafter:SetVisible(true)
+        end
+      end
+      state.positionEditNode()
+    end
+  end
 end
