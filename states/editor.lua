@@ -1522,6 +1522,18 @@ function state.applyChangesNode(object, text)
     EDITOR.nodeselected.name=EDITOR.gui.txt_nodename:GetText()
     EDITOR.nodeselected.func=EDITOR.gui.txt_nodefunc:GetText()
     EDITOR.nodeselected:changeWidth()
+    local _oldvalid = EDITOR.nodeselected.valid
+    local _valid = 0
+    if EDITOR.nodeselected:validate()==false then
+      if _oldvalid == true then
+        _valid = _valid + 1
+      end
+    else
+      if _oldvalid == false then
+        _valid = _valid - 1
+      end
+    end
+    EDITOR.nodesNotValid = EDITOR.nodesNotValid + _valid
   end
 end
 
