@@ -4,6 +4,18 @@
 		"selected_items":
 		[
 			[
+				"for",
+				"for	for i=1,10"
+			],
+			[
+				"btn_mo",
+				"btn_movebefore"
+			],
+			[
+				"btn_move",
+				"btn_movebefore"
+			],
+			[
 				"notes",
 				"notesbutton"
 			],
@@ -46,10 +58,6 @@
 			[
 				"txt_",
 				"txt_title"
-			],
-			[
-				"for",
-				"forp	for k,v in pairs()"
 			],
 			[
 				"dialo",
@@ -115,7 +123,7 @@
 			"file": "states/editor.lua",
 			"settings":
 			{
-				"buffer_size": 47436,
+				"buffer_size": 51531,
 				"line_ending": "Windows"
 			}
 		},
@@ -139,7 +147,7 @@
 			"file": "classes/node.lua",
 			"settings":
 			{
-				"buffer_size": 10455,
+				"buffer_size": 11975,
 				"line_ending": "Windows"
 			}
 		},
@@ -149,6 +157,22 @@
 			{
 				"buffer_size": 1425,
 				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/C/leo/love/platform/lib/skeleton.lua",
+			"settings":
+			{
+				"buffer_size": 9458,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/leo/love/btlua/btlua.lua",
+			"settings":
+			{
+				"buffer_size": 8228,
+				"line_ending": "Windows"
 			}
 		},
 		{
@@ -264,6 +288,12 @@
 	},
 	"file_history":
 	[
+		"/C/leo/love/skeleton/skeleton.lua",
+		"/C/Users/leo/Downloads/thekingandthecrown/conf.lua",
+		"/C/leo/love/stealthman/main.lua",
+		"/C/Users/leo/Downloads/thekingandthecrown/main.lua",
+		"/C/Users/leo/AppData/Local/Temp/7zO40C5.tmp/init.lua",
+		"/C/Users/leo/AppData/Local/Temp/7zOF16A.tmp/main.lua",
 		"/C/leo/moai-sdk/moai-sdk/samples/particles/particles-compute-bounds/main.lua",
 		"/C/leo/moai-sdk/moai-sdk/samples/particles/particles-presets/main.lua",
 		"/C/leo/moai-sdk/moai-sdk/hosts/chrome/main.lua",
@@ -372,6 +402,34 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"dungeonpar",
+			"validate",
+			"txt_nodefunc",
+			"start",
+			"condit",
+			"palettenodeheight",
+			"palette",
+			"valid",
+			"backspa",
+			"applyChangesNode",
+			"ontextchanged",
+			"levelind",
+			"updatenodes",
+			"switch",
+			"indexchild",
+			"refre",
+			"updateNodes",
+			"dolayout",
+			"changenodepa",
+			"changenode",
+			"change",
+			"moveNodeParent",
+			"clicke",
+			"addnode",
+			"position",
+			"state:enter",
+			"txt_nodename",
+			"changenode",
 			"collectgarbage",
 			"layoutgui",
 			"newdoc",
@@ -471,35 +529,7 @@
 			"savefile",
 			"SetText(",
 			"()) ",
-			"\"save",
-			"fileopen",
-			"firstdr",
-			"first",
-			"state:create",
-			"createDialog",
-			"EDITOR.events",
-			"createdial",
-			"\"open",
-			"option",
-			"lbl_titl",
-			"filesa",
-			"open",
-			"drawdebug",
-			"debug",
-			":dra",
-			"300",
-			"330",
-			"360",
-			"330",
-			"divisor",
-			"divisor2",
-			"layoutgui",
-			"guilayout",
-			"toolbar",
-			"guilayout",
-			"::",
-			":setpos",
-			"(24"
+			"\"save"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -530,7 +560,7 @@
 	"groups":
 	[
 		{
-			"selected": 12,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -545,8 +575,8 @@
 						"selection":
 						[
 							[
-								59,
-								71
+								0,
+								0
 							]
 						],
 						"settings":
@@ -591,7 +621,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 3,
+							"function_name_status_row": 0,
 							"gjslint_ignore":
 							[
 								110
@@ -770,7 +800,7 @@
 					"file": "states/editor.lua",
 					"settings":
 					{
-						"buffer_size": 47436,
+						"buffer_size": 51531,
 						"regions":
 						{
 							"bookmarks":
@@ -790,8 +820,8 @@
 						"selection":
 						[
 							[
-								8086,
-								8086
+								0,
+								0
 							]
 						],
 						"settings":
@@ -836,7 +866,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 310,
+							"function_name_status_row": 0,
 							"gjslint_ignore":
 							[
 								110
@@ -890,7 +920,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 5149.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -1132,15 +1162,15 @@
 					"file": "classes/node.lua",
 					"settings":
 					{
-						"buffer_size": 10455,
+						"buffer_size": 11975,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								754,
-								754
+								10039,
+								10039
 							]
 						],
 						"settings":
@@ -1185,7 +1215,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 28,
+							"function_name_status_row": 251,
 							"gjslint_ignore":
 							[
 								110
@@ -1239,7 +1269,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 57.0,
+						"translation.y": 5233.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -1256,8 +1286,8 @@
 						"selection":
 						[
 							[
-								1059,
-								1059
+								1424,
+								0
 							]
 						],
 						"settings":
@@ -1302,7 +1332,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 23,
+							"function_name_status_row": 0,
 							"gjslint_ignore":
 							[
 								110
@@ -1354,13 +1384,247 @@
 							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 209.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 7,
+					"file": "/C/leo/love/platform/lib/skeleton.lua",
+					"settings":
+					{
+						"buffer_size": 9458,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								17,
+								17
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"function_name_status_row": 0,
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "/C/leo/love/btlua/btlua.lua",
+					"settings":
+					{
+						"buffer_size": 8228,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"function_name_status_row": 0,
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/SublimeLeoLove/Love.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
 					"file": "lib/utils.lua",
 					"settings":
 					{
@@ -1477,7 +1741,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 10,
 					"file": "conf.lua",
 					"settings":
 					{
@@ -1594,7 +1858,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 9,
+					"buffer": 11,
 					"file": "README.md",
 					"settings":
 					{
@@ -1709,7 +1973,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 10,
+					"buffer": 12,
 					"file": "lib/loveframes/init.lua",
 					"settings":
 					{
@@ -1825,7 +2089,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 11,
+					"buffer": 13,
 					"file": "lib/loveframes/debug.lua",
 					"settings":
 					{
@@ -1941,7 +2205,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 12,
+					"buffer": 14,
 					"file": "lib/loveframes/objects/textinput.lua",
 					"settings":
 					{
@@ -1952,8 +2216,8 @@
 						"selection":
 						[
 							[
-								14536,
-								14536
+								13985,
+								13985
 							]
 						],
 						"settings":
@@ -1998,7 +2262,7 @@
 								"vendor-prefix": true,
 								"zero-units": "warning"
 							},
-							"function_name_status_row": 569,
+							"function_name_status_row": 548,
 							"gjslint_ignore":
 							[
 								110
@@ -2051,7 +2315,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 10642.0,
+						"translation.y": 9940.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
