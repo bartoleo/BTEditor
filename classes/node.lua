@@ -3,7 +3,7 @@
 local node = SECS_class:new()
 
 function node:init(pname,ptype,pfunc,pid,px,py,pwidth,pheight,pparent,pindexchild)
-  
+
   --- common properties for node
   self.name = pname
   self.type = ptype
@@ -11,7 +11,7 @@ function node:init(pname,ptype,pfunc,pid,px,py,pwidth,pheight,pparent,pindexchil
   self.id = pid
   if self.id==nil then
     self.id = generateId("node")
-  end 
+  end
   self.x = px
   self.y = py
   self.finished = false
@@ -60,9 +60,9 @@ function node:init(pname,ptype,pfunc,pid,px,py,pwidth,pheight,pparent,pindexchil
 end
 
 function node:update(dt)
- 
+
   return true
- 
+
 end
 
 function node:draw(pclipifoutsidecamera)
@@ -147,7 +147,7 @@ function node:draw(pclipifoutsidecamera)
         EDITOR.drawArrow(_minx,_avgy,_maxx,_avgy)
       end
     end
-    if self.type=="Action" then
+    if self.type=="Action" or self.type=="ActionResume" then
       love.graphics.setColor(150,150,255,255)
       love.graphics.polygon("fill",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
       love.graphics.setColor(0,0,0,255)
@@ -162,7 +162,7 @@ function node:draw(pclipifoutsidecamera)
       love.graphics.setColor(255,255,255,255)
       love.graphics.draw(images.action,self.x+2,self.y+2)
     end
-    if self.type=="Decorator" or self.type=="RepeatUntil" or self.type=="Continue"  or self.type=="Wait" or self.type=="WaitContinue" or self.type == "Filter" then
+    if self.type=="Decorator" or self.type=="RepeatUntil" or self.type=="Continue"  or self.type=="Wait" or self.type=="WaitContinue" or self.type == "Filter" or self.type == "Sleep"  or self.type == "DecoratorContinue" then
       love.graphics.setColor(255,255,100,255)
       love.graphics.polygon("fill",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
       love.graphics.setColor(0,0,0,255)
@@ -209,7 +209,7 @@ function node:draw(pclipifoutsidecamera)
     end
   end
   love.graphics.setLineWidth(1)
-  
+
   if self.parent and self.parent.children then
     local _drawarrow = true
     if _draw==false then
@@ -269,7 +269,7 @@ function node:validate()
       _valid = false
       _validtext = _validtext..", Define a function for condition node"
     end
-  elseif self.type == "Action" then
+  elseif self.type == "Action" or self.type == "ActionResume" then
     if self.children~=nil and #self.children>0 then
       _valid = false
       _validtext = _validtext..", Children are forbidden"
@@ -278,7 +278,7 @@ function node:validate()
       _valid = false
       _validtext = _validtext..", Define a function for action node"
     end
-  elseif self.type=="Decorator" or self.type=="RepeatUntil" or self.type=="Continue"  or self.type=="Wait" or self.type=="WaitContinue" or self.type == "Filter" then
+  elseif self.type=="Decorator" or self.type=="RepeatUntil" or self.type=="Continue"  or self.type=="Wait" or self.type=="WaitContinue" or self.type == "Filter"  or self.type == "Sleep"  or self.type == "DecoratorContinue" then
     if self.children==nil or #self.children==0 then
       _valid = false
       _validtext = _validtext..", At least one child"
@@ -293,7 +293,7 @@ function node:validate()
         _validtext = _validtext..", Define a function for filter node"
       end
     end
-  end   
+  end
   if _validtext =="" then
     _validtext = nil
   elseif string.sub(_validtext,1,2) == ", " then

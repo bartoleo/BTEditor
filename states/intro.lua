@@ -70,6 +70,11 @@ Bart van Strien for SECS class
 ]===]
   ,screen_middlex-60 , screen_middley-70, 300, 'left')
   love.graphics.printf(math.floor(state.autoexit-state.dt).." seconds remaining or mouse click to continue", 0, screen_height-20, screen_width, 'center')
+
+  if not assetloader.initialized then
+    assetloader.load(true)
+  end
+
 end
 
 --- state (LUADOC TODO add resume)
