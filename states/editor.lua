@@ -501,8 +501,9 @@ function state:keypressed(key, unicode)
         EDITOR.btlua = nil
         return false
       end
-      print(Inspector(EDITOR.btlua))
+      --print(Inspector(EDITOR.btlua))
       --print(Inspector(_tree))
+      EDITOR.btlua:run()
     end
 
   end
@@ -1239,6 +1240,7 @@ function state:changeNodeParent(pnode,pnewparent)
       --
       pnode.parent = pnewparent
       pnode.level = pnewparent.level+1
+      pnode.y = pnode.parent.y+EDITOR.divisory
     end
     state:updateNodes()
     EDITOR.dolayout = true

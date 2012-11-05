@@ -14,7 +14,6 @@ function node:init(pname,ptype,pfunc,pid,px,py,pwidth,pheight,pparent,pindexchil
   end
   self.x = px
   self.y = py
-  self.finished = false
   self.textwidth, self.textlines = fonts[","..EDITOR.fontsize]:getWrap(self.type.."\n"..self.name.."\n"..self.func.." ", 400)
   self.width = pwidth
   if pwidth==nil then

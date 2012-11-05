@@ -673,9 +673,7 @@ function BTLua.BTree:parseFunc(pfunc)
   for i,v in ipairs(_funcs) do
     if v ~= "" then
       local _function
-      local _strfunc = string.gsub(v, "#", "_object.")
-      local _strfunc = string.gsub(v, "@", "_G.")
-      local _strfunc = string.gsub(v, "!", "_btree.")
+      local _strfunc = v
       if (string.sub(_strfunc,1,1)=="'" or string.sub(_strfunc,-1)=='"') and string.sub(_strfunc,1,1)==string.sub(_strfunc,-1) then
         -- string
         table.insert(_return,string.sub(_strfunc,2,-2))
@@ -683,7 +681,19 @@ function BTLua.BTree:parseFunc(pfunc)
         -- number
         table.insert(_return,tonumber(_strfunc))
       else
-        _function = loadstring("return ".._strfunc)
+        if string.sub(_strfunc,1,1)=="#" then
+          _function = _object[string.sub(_strfunc,2,-1)]
+        elseif string.sub(_strfunc,1,1)=="@" then
+          _function = _btree[string.sub(_strfunc,2,-1)]
+        elseif string.sub(_strfunc,1,1)=="!" then
+          _function = _G[string.sub(_strfunc,2,-1)]
+        else
+          if i==1 then 
+            _function = loadstring(_strfunc)
+          else
+            _function = _strfunc
+          end
+        end 
         table.insert(_return,_function)
       end
     end
@@ -696,7 +706,7 @@ function BTLua.BTree:parseNode(pnode,pattributes)
   local _type = string.upper(pnode.type)
   local _func = nil
   if pnode.func then
-    _func =  BTLua.BTree:parseFunc(pnode.func)
+    _func =  self:parseFunc(pnode.func)
   end
   if _type =="START" then
     return nil
