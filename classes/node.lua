@@ -74,19 +74,19 @@ function node:draw(pclipifoutsidecamera)
   end
   if _draw then
     if self.selected then
-      love.graphics.setLineWidth(3)
+      love.graphics.setLine(3, "smooth")
     else
-      love.graphics.setLineWidth(1)
+      love.graphics.setLine(1, "smooth")
     end
     love.graphics.setFont(fonts[","..EDITOR.fontsize])
     self:drawShape("fill")
     love.graphics.setColor(0,0,0,255)
     self:drawShape("line")
     if self.selected then
-      love.graphics.setLineWidth(1)
+      love.graphics.setLine(1, "smooth")
       love.graphics.setColor(255,255,0,255)
       self:drawShape("line")
-      love.graphics.setLineWidth(3)
+      love.graphics.setLine(3, "smooth")
       love.graphics.setColor(0,0,0,255)
     end
     if self.type=="Selector" then

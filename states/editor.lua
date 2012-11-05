@@ -517,31 +517,33 @@ function state:mousepressed(x, y, button)
   local _x,_y = EDITOR.camera:worldCoords(x,y)
 
   if EDITOR.inputenabled then
-    if y > EDITOR.toolbarheight then
-      if x < screen_width - EDITOR.palettewidth then
-        if (button=="l" or button=="r") and state:nodeHit(EDITOR.nodekeys,_x,_y) then
-          state:changeNodeSelected(state:nodeHit(EDITOR.nodekeys,_x,_y))
-          startx,starty = _x,_y
-          offsetx ,offsety = _x-EDITOR.nodeselected.x,_y-EDITOR.nodeselected.y
-          EDITOR.mouseaction = "movenode"
-        else
-          startx,starty = _x,_y
-          EDITOR.mouseaction = "move"
-          state:changePointer(images.pointer_move)
-          if button=="wd" then
-            state:zoom(_x,_y,1/1.5)
-          end
-          if button=="wu" then
-            state:zoom(_x,_y,1.5)
+    if #loveframes.util.GetCollisions()<2 then
+      if y > EDITOR.toolbarheight then
+        if x < screen_width - EDITOR.palettewidth then
+          if (button=="l" or button=="r") and state:nodeHit(EDITOR.nodekeys,_x,_y) then
+            state:changeNodeSelected(state:nodeHit(EDITOR.nodekeys,_x,_y))
+            startx,starty = _x,_y
+            offsetx ,offsety = _x-EDITOR.nodeselected.x,_y-EDITOR.nodeselected.y
+            EDITOR.mouseaction = "movenode"
+          else
+            startx,starty = _x,_y
+            EDITOR.mouseaction = "move"
+            state:changePointer(images.pointer_move)
+            if button=="wd" then
+              state:zoom(_x,_y,1/1.5)
+            end
+            if button=="wu" then
+              state:zoom(_x,_y,1.5)
+            end
           end
         end
-      end
-      if x >= screen_width-EDITOR.palettewidth then
-        local _node = state:nodeHit(EDITOR.palette,x,y)
-        if _node then
-          state:changePaletteNodeSelected(_node)
-          startx,starty = _x,_y
-          EDITOR.mouseaction = "movepalette"
+        if x >= screen_width-EDITOR.palettewidth then
+          local _node = state:nodeHit(EDITOR.palette,x,y)
+          if _node then
+            state:changePaletteNodeSelected(_node)
+            startx,starty = _x,_y
+            EDITOR.mouseaction = "movepalette"
+          end
         end
       end
     end
