@@ -392,7 +392,7 @@ function state:update(dt)
           end
         end
         if EDITOR.mouseaction == "movenode"  then
-          if state:nodeHit(EDITOR.nodekeys,_xc,_yc) then
+          if state:nodeHit(EDITOR.nodekeys,_xc,_yc) and love.mouse.isDown( "r" ) then
             state:changePointer(images.pointer_down)
           else
             state:changePointer(nil)
@@ -419,6 +419,13 @@ function state:draw()
   EDITOR.camera:attach()
   state:drawGrid()
   state:drawNodes()
+  if EDITOR.mouseaction == "movepalette" then
+    local _xc, _yc = EDITOR.camera:worldCoords(_x,_y)
+    state:drawDragNodePalette(_xc,_yc)
+  elseif EDITOR.mouseaction == "movenode" then
+    local _xc, _yc = EDITOR.camera:worldCoords(_x,_y)
+    state:drawDragNode(_xc,_yc)
+  end
   EDITOR.camera:detach()
 
   love.graphics.setColor(196,196,196,255)
@@ -515,6 +522,7 @@ function state:mousepressed(x, y, button)
         if (button=="l" or button=="r") and state:nodeHit(EDITOR.nodekeys,_x,_y) then
           state:changeNodeSelected(state:nodeHit(EDITOR.nodekeys,_x,_y))
           startx,starty = _x,_y
+          offsetx ,offsety = _x-EDITOR.nodeselected.x,_y-EDITOR.nodeselected.y
           EDITOR.mouseaction = "movenode"
         else
           startx,starty = _x,_y
@@ -1699,5 +1707,19 @@ function state:refreshNodeEditBox()
       end
       state.positionEditNode()
     end
+  end
+end
+
+function state:drawDragNodePalette(px,py)
+  if EDITOR.palettenodeselected then
+    love.graphics.setColor(0,0,0,255)
+    EDITOR.palettenodeselected:drawShape2(EDITOR.palettenodeselected.type,"line",px-EDITOR.palettenodeselected.width/2,py,EDITOR.palettenodeselected.width,EDITOR.palettenodeselected.height)
+  end
+end
+
+function state:drawDragNode(px,py)
+  if EDITOR.nodeselected then
+    love.graphics.setColor(0,0,0,255)
+    EDITOR.nodeselected:drawShape2(EDITOR.nodeselected.type,"line",px-offsetx,py-offsety,EDITOR.nodeselected.width,EDITOR.nodeselected.height)
   end
 end

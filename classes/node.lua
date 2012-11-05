@@ -79,52 +79,25 @@ function node:draw(pclipifoutsidecamera)
       love.graphics.setLineWidth(1)
     end
     love.graphics.setFont(fonts[","..EDITOR.fontsize])
-    if self.type=="Start" then
-      love.graphics.setColor(255,255,255,255)
-      love.graphics.circle("fill",self.x+self.width/2,self.y+self.height/2,self.height/2)
+    self:drawShape("fill")
+    love.graphics.setColor(0,0,0,255)
+    self:drawShape("line")
+    if self.selected then
+      love.graphics.setLineWidth(1)
+      love.graphics.setColor(255,255,0,255)
+      self:drawShape("line")
+      love.graphics.setLineWidth(3)
       love.graphics.setColor(0,0,0,255)
-      love.graphics.circle("line",self.x+self.width/2,self.y+self.height/2,self.height/2)
-      if self.selected then
-        love.graphics.setLineWidth(1)
-        love.graphics.setColor(255,255,0,255)
-        love.graphics.circle("line",self.x+self.width/2,self.y+self.height/2,self.height/2)
-        love.graphics.setLineWidth(3)
-        love.graphics.setColor(0,0,0,255)
-      end
     end
-    if self.type=="Selector" or self.type=="RandomSelector" then
-      love.graphics.setColor(255,150,70,255)
-      love.graphics.polygon("fill",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-      love.graphics.setColor(0,0,0,255)
-      love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-      if self.selected then
-        love.graphics.setLineWidth(1)
-        love.graphics.setColor(255,255,0,255)
-        love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-        love.graphics.setLineWidth(3)
-        love.graphics.setColor(0,0,0,255)
-      end
-      if self.type=="Selector" then
-        love.graphics.setColor(255,255,255,255)
-        love.graphics.draw(images.selector,self.x+2,self.y+2)
-      end
-      if self.type=="RandomSelector" then
-        love.graphics.setColor(255,255,255,255)
-        love.graphics.draw(images.randomselector,self.x+2,self.y+2)
-      end
+    if self.type=="Selector" then
+      love.graphics.setColor(255,255,255,255)
+      love.graphics.draw(images.selector,self.x+2,self.y+2)
+    end
+    if self.type=="RandomSelector" then
+      love.graphics.setColor(255,255,255,255)
+      love.graphics.draw(images.randomselector,self.x+2,self.y+2)
     end
     if self.type=="Sequence" then
-      love.graphics.setColor(150,255,150,255)
-      love.graphics.polygon("fill",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-      love.graphics.setColor(0,0,0,255)
-      love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-      if self.selected then
-        love.graphics.setLineWidth(1)
-        love.graphics.setColor(255,255,0,255)
-        love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-        love.graphics.setLineWidth(3)
-        love.graphics.setColor(0,0,0,255)
-      end
       love.graphics.setColor(255,255,255,255)
       love.graphics.draw(images.sequence,self.x+2,self.y+2)
       if self.children and #self.children>0 then
@@ -148,52 +121,16 @@ function node:draw(pclipifoutsidecamera)
       end
     end
     if self.type=="Action" or self.type=="ActionResume" then
-      love.graphics.setColor(150,150,255,255)
-      love.graphics.polygon("fill",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-      love.graphics.setColor(0,0,0,255)
-      love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-      if self.selected then
-        love.graphics.setLineWidth(1)
-        love.graphics.setColor(255,255,0,255)
-        love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-        love.graphics.setLineWidth(3)
-        love.graphics.setColor(0,0,0,255)
-      end
       love.graphics.setColor(255,255,255,255)
       love.graphics.draw(images.action,self.x+2,self.y+2)
     end
     if self.type=="Decorator" or self.type=="RepeatUntil" or self.type=="Continue"  or self.type=="Wait" or self.type=="WaitContinue" or self.type == "Filter" or self.type == "Sleep"  or self.type == "DecoratorContinue" then
-      love.graphics.setColor(255,255,100,255)
-      love.graphics.polygon("fill",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-      love.graphics.setColor(0,0,0,255)
-      love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-      if self.selected then
-        love.graphics.setLineWidth(1)
-        love.graphics.setColor(255,255,0,255)
-        love.graphics.polygon("line",self.x,self.y,self.x+self.width,self.y,self.x+self.width,self.y+self.height,self.x,self.y+self.height)
-        love.graphics.setLineWidth(3)
-        love.graphics.setColor(0,0,0,255)
-      end
       if self.type == "Filter" then
         love.graphics.setColor(255,255,255,255)
         love.graphics.draw(images.condition,self.x+2,self.y+2)
       end
     end
     if self.type=="Condition" then
-      love.graphics.setColor(150,255,150,255)
-      love.graphics.polygon("fill",self.x+self.width/2,self.y
-        ,self.x+self.width,self.y+self.height/2,self.x+self.width/2,self.y+self.height,self.x,self.y+self.height/2)
-      love.graphics.setColor(0,0,0,255)
-      love.graphics.polygon("line",self.x+self.width/2,self.y
-        ,self.x+self.width,self.y+self.height/2,self.x+self.width/2,self.y+self.height,self.x,self.y+self.height/2)
-      if self.selected then
-        love.graphics.setLineWidth(1)
-        love.graphics.setColor(255,255,0,255)
-        love.graphics.polygon("line",self.x+self.width/2,self.y
-        ,self.x+self.width,self.y+self.height/2,self.x+self.width/2,self.y+self.height,self.x,self.y+self.height/2)
-        love.graphics.setLineWidth(3)
-        love.graphics.setColor(0,0,0,255)
-      end
       love.graphics.setColor(255,255,255,255)
       love.graphics.draw(images.condition,self.x+2,self.y+2)
     end
@@ -302,6 +239,49 @@ function node:validate()
   self.valid = _valid
   self.validtext = _validtext
   return self.valid, self.validtext
+end
+
+function node:drawShape(pmode)
+  self:drawShape2(self.type,pmode,self.x,self.y,self.width,self.height)
+end
+
+function node:drawShape2(ptype,pmode,px,py,pwidth,pheight)
+  if ptype=="Start" then
+    if pmode=="fill" then
+      love.graphics.setColor(255,255,255,255)
+    end
+    love.graphics.circle(pmode,px+pwidth/2,py+pheight/2,pheight/2)
+  elseif ptype=="Selector" or ptype=="RandomSelector" then
+    if pmode=="fill" then
+      love.graphics.setColor(255,150,70,255)
+    end
+    love.graphics.polygon(pmode,px,py,px+pwidth,py,px+pwidth,py+pheight,px,py+pheight)
+  elseif ptype=="Sequence" then
+    if pmode=="fill" then
+      love.graphics.setColor(150,255,150,255)
+    end
+    love.graphics.polygon(pmode,px,py,px+pwidth,py,px+pwidth,py+pheight,px,py+pheight)
+  elseif ptype=="Action" or ptype=="ActionResume" then
+    if pmode=="fill" then
+      love.graphics.setColor(150,150,255,255)
+    end
+    love.graphics.polygon(pmode,px,py,px+pwidth,py,px+pwidth,py+pheight,px,py+pheight)
+  elseif ptype=="Decorator" or ptype=="RepeatUntil" or ptype=="Continue"  or ptype=="Wait" or ptype=="WaitContinue" or ptype == "Filter" or ptype == "Sleep"  or ptype == "DecoratorContinue" then
+    if pmode=="fill" then
+      love.graphics.setColor(255,255,100,255)
+    end
+    love.graphics.polygon(pmode,px,py,px+pwidth,py,px+pwidth,py+pheight,px,py+pheight)
+  elseif ptype=="Condition" then
+    if pmode=="fill" then
+      love.graphics.setColor(150,255,150,255)
+    end
+    love.graphics.polygon(pmode,px+pwidth/2,py,px+pwidth,py+pheight/2,px+pwidth/2,py+pheight,px,py+pheight/2)
+  else
+    if pmode=="fill" then
+      love.graphics.setColor(255,0,255,255)
+    end
+    love.graphics.polygon(pmode,px,py,px+pwidth,py,px+pwidth,py+pheight,px,py+pheight)
+  end
 end
 
 return node
