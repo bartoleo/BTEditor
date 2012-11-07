@@ -688,7 +688,7 @@ function BTLua.BTree:parseFunc(pfunc)
           _function = _btree[string.sub(_strfunc,2,-1)]
         elseif string.sub(_strfunc,1,1)=="!" then
           _function = _G[string.sub(_strfunc,2,-1)]
-        else
+        elseif _strfunc~=nil and _strfunc~="" then
           if i==1 then
             _function = loadstring("return ".._strfunc)()
           else

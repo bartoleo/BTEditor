@@ -709,7 +709,7 @@ function state.clickEvent(object, mousex , mousey)
     state:runSimulation(false)
   end
   if object==EDITOR.gui.btnstepsimulation then
-    state:runSimulation(run)
+    state:runSimulation(true)
   end
 end
 
