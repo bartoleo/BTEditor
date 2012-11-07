@@ -5,9 +5,9 @@ local node = SECS_class:new()
 function node:init(pname,ptype,pfunc,pid,px,py,pwidth,pheight,pparent,pindexchild)
 
   --- common properties for node
-  self.name = pname
-  self.type = ptype
-  self.func = pfunc
+  self.name = pname or ""
+  self.type = ptype or ""
+  self.func = pfunc or ""
   self.id = pid
   if self.id==nil then
     self.id = generateId("node")
@@ -116,7 +116,7 @@ function node:draw(pclipifoutsidecamera)
           _maxx = _maxx + 10
         end
         love.graphics.setColor(128,128,128,255)
-        EDITOR.drawArrow(_minx,_avgy,_maxx,_avgy)
+        EDITOR.drawArrow(_minx,_avgy,_maxx,_avgy,EDITOR.arrowsize)
       end
     end
     if self.type=="Action" or self.type=="ActionResume" then
@@ -149,18 +149,18 @@ function node:draw(pclipifoutsidecamera)
   if self.parent and self.parent.children then
     local _drawarrow = true
     if _draw==false then
-      -- TODO add filter to avoid drawing arrows outside 'screen'
+      -- TODO: add filter to avoid drawing arrows outside 'screen'
     end
     if _drawarrow then
       love.graphics.setColor(0,0,0,255)
       local _position_child = 0.25+(self.indexchild/(#self.parent.children+1))/2
-      EDITOR.drawArrow(self.parent.x+self.parent.width*_position_child,self.parent.y+self.parent.height+2,self.x+self.width/2,self.y-2)
+      EDITOR.drawArrow(self.parent.x+self.parent.width*_position_child,self.parent.y+self.parent.height+2,self.x+self.width/2,self.y-2,EDITOR.arrowsize)
     end
   end
   --if self.children then
   --  for i,v in ipairs(self.children) do
   --    love.graphics.setColor(64,64,64,255)
-  --    EDITOR.drawArrow(self.x+self.width/2,self.y+self.height+2,v.x+v.width/2,v.y-2)
+  --    EDITOR.drawArrow(self.x+self.width/2,self.y+self.height+2,v.x+v.width/2,v.y-2,EDITOR.arrowsize)
   --  end
   --end
 end

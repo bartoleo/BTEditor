@@ -75,7 +75,7 @@ function BTLua.Sequence:init(...)
 end
 function BTLua.Sequence:run(pbehavtree)
   --debugprint("BTLua.Sequence:run")
-  --if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
+  if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
   local _s, _child
   local _ticknum = pbehavtree.ticknum
   for i=1,#self.c do
@@ -90,14 +90,14 @@ function BTLua.Sequence:run(pbehavtree)
       --debugprint("BTLua.Sequence ends2")
       --debugprint(_s)
       self.n,self.s = _ticknum, _s
-      --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+      if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
       return _s
     end
   end
   --debugprint("BTLua.Sequence ends")
   --debugprint(_s)
   self.n,self.s = _ticknum, _s
-  --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+  if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
   return _s
 end
 --------------- SELECTOR ----------------
@@ -113,7 +113,7 @@ function BTLua.Selector:init(...)
 end
 function BTLua.Selector:run(pbehavtree)
   --debugprint("BTLua.Selector:run")
-  --if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
+  if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
   local _s, _child
   local _ticknum = pbehavtree.ticknum
   for i=1,#self.c do
@@ -128,14 +128,14 @@ function BTLua.Selector:run(pbehavtree)
         --debugprint("BTLua.Selector ends2")
         --debugprint(_s)
         self.n,self.s = _ticknum, _s
-        --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+        if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
         return _s
       end
     end
   --debugprint("BTLua.Selector ends")
   --debugprint(_s)
   self.n,self.s = _ticknum, _s
-  --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+  if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
   return _s
 end
 --------------- RANDOMSELECTOR ----------------
@@ -151,7 +151,7 @@ function BTLua.RandomSelector:init(...)
 end
 function BTLua.RandomSelector:run(pbehavtree)
   --debugprint("BTLua.RandomSelector:run")
-  --if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
+  if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
   local _s, _child
   local _ticknum = pbehavtree.ticknum
   if self.s ~= "Running" or self.n ~= _ticknum-1 then
@@ -166,12 +166,12 @@ function BTLua.RandomSelector:run(pbehavtree)
     end
     if _s==true or _s=="Running" then
      self.n,self.s = _ticknum, _s
-     --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+     if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
      return _s
    end
  end
  self.n,self.s = _ticknum, _s
- --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+ if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
  return _s
 end
 --------------- FILTER ----------------
@@ -191,7 +191,7 @@ function BTLua.Filter:init(pcondition,pchild,...)
 end
 function BTLua.Filter:run(pbehavtree)
   --debugprint("BTLua.Filter:run "..type(self.a))
-  --if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
+  if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
   local _s, _child
   local _ticknum = pbehavtree.ticknum
   local _object, _btree = pbehavtree.object, pbehavtree
@@ -204,7 +204,7 @@ function BTLua.Filter:run(pbehavtree)
       end
       if _s == false then
         self.n,self.s = _ticknum, _s
-        --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+        if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
         return _s
       end
     end
@@ -218,14 +218,14 @@ function BTLua.Filter:run(pbehavtree)
     end
     if _s==true or _s=="Running" then
      self.n,self.s = _ticknum, _s
-     --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+     if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
      return _s
    end
  end
   --debugprint("BTLua.Filter:run result ")
   --debugprint(_s)
   self.n,self.s = _ticknum, _s
-  --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+  if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
   return _s
 end
 --------------- DECORATOR ----------------
@@ -245,7 +245,7 @@ function BTLua.Decorator:init(pcondition,pchild,...)
 end
 function BTLua.Decorator:run(pbehavtree)
   --debugprint("BTLua.Decorator:run "..type(self.a))
-  --if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
+  if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
   local _s
   local _ticknum = pbehavtree.ticknum
   local _object, _btree = pbehavtree.object, pbehavtree
@@ -258,7 +258,7 @@ function BTLua.Decorator:run(pbehavtree)
       end
       if _s == false then
         self.n,self.s = _ticknum, _s
-        --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+        if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
         return _s
       end
     end
@@ -272,14 +272,14 @@ function BTLua.Decorator:run(pbehavtree)
     end
     if _s==true or _s=="Running" then
       self.n,self.s = _ticknum, _s
-      --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+      if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
       return _s
     end
   end
   --debugprint("BTLua.Decorator:run result ")
   --debugprint(_s)
   self.n,self.s = _ticknum, _s
-  --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+  if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
   return _s
 end
 --------------- DECORATORContinue ----------------
@@ -299,7 +299,7 @@ function BTLua.DecoratorContinue:init(pcondition,pchild,...)
 end
 function BTLua.DecoratorContinue:run(pbehavtree)
   --debugprint("BTLua.DecoratorContinue:run "..type(self.a))
-  --if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
+  if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
   local _s
   local _ticknum = pbehavtree.ticknum
   local _object, _btree = pbehavtree.object, pbehavtree
@@ -313,7 +313,7 @@ function BTLua.DecoratorContinue:run(pbehavtree)
       if _s == false then
         _s = true
         self.n,self.s = _ticknum, _s
-        --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+        if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
         return _s
       end
     end
@@ -327,19 +327,19 @@ function BTLua.DecoratorContinue:run(pbehavtree)
     end
     if _s==true or _s=="Running" then
       self.n,self.s = _ticknum, _s
-      --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+      if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
       return _s
     end
   end
   --debugprint("BTLua.DecoratorContinue:run result ")
   --debugprint(_s)
   self.n,self.s = _ticknum, _s
-  --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+  if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
   return _s
 end
 --------------- WAIT ----------------
 BTLua.Wait = inheritsFrom(BTLua.node)
-function BTLua.Wait:init(pcondition,ptimeout,pchild,...)
+function BTLua.Wait:init(ptimeout,pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
@@ -352,13 +352,14 @@ function BTLua.Wait:init(pcondition,ptimeout,pchild,...)
   if select("#",...)>0 then
     self.a2 = {...}
   end
+  error("BTLua.Wait ... in development... see you soon")
 end
 function BTLua.Wait:run(pbehavtree)
---TODO da fare
+  -- TODO: da fare BTLua.Wait
 end
 --------------- WAITContinue ----------------
 BTLua.WaitContinue = inheritsFrom(BTLua.node)
-function BTLua.WaitContinue:init(pcondition,ptimeout,pchild,...)
+function BTLua.WaitContinue:init(ptimeout,pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
@@ -371,13 +372,14 @@ function BTLua.WaitContinue:init(pcondition,ptimeout,pchild,...)
   if select("#",...)>0 then
     self.a2 = {...}
   end
+  error("BTLua.WaitContinue ... in development... see you soon")
 end
 function BTLua.WaitContinue:run(pbehavtree)
---TODO da fare
+  -- TODO: da fare BTLua.WaitContinue
 end
 --------------- REPEATUNTIL ----------------
 BTLua.RepeatUntil = inheritsFrom(BTLua.node)
-function BTLua.RepeatUntil:init(pcondition,ptimeout,pchild,...)
+function BTLua.RepeatUntil:init(ptimeout,pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
@@ -390,13 +392,14 @@ function BTLua.RepeatUntil:init(pcondition,ptimeout,pchild,...)
   if select("#",...)>0 then
     self.a2 = {...}
   end
+  error("BTLua.RepeatUntil ... in development... see you soon")
 end
 function BTLua.RepeatUntil:run(pbehavtree)
---TODO da fare
+  -- TODO: da fare BTLua.RepeatUntil
 end
 --------------- SLEEP --------------------
-function BTLua.Sleep(timeout)
-  return BTLua.WaitContinue:new(function() return false end, nil, timeout)
+function BTLua.Sleep(ptimeout)
+  return BTLua.WaitContinue:new(ptimeout,BTLua.ReturnFalse, nil)
 end
 --------------- CONDITION ----------------
 BTLua.Condition = inheritsFrom(BTLua.node)
@@ -414,7 +417,7 @@ function BTLua.Condition:init(pcondition,...)
 end
 function BTLua.Condition:run(pbehavtree)
   --debugprint("BTLua.Condition:run "..type(self.a))
-  --if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
+  if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
   local _s
   local _ticknum = pbehavtree.ticknum
   local _object, _btree = pbehavtree.object, pbehavtree
@@ -428,7 +431,7 @@ function BTLua.Condition:run(pbehavtree)
   --debugprint("BTLua.Condition:run result ")
   --debugprint(_s)
   self.n,self.s = _ticknum, _s
-  --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+  if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
   return _s
 end
 --------------- ACTION ----------------
@@ -448,7 +451,7 @@ function BTLua.Action:init(paction,...)
 end
 function BTLua.Action:run(pbehavtree)
   --debugprint("BTLua.Action:run")
-  --if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
+  if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
   local _s
   local _ticknum = pbehavtree.ticknum
   local _object, _btree = pbehavtree.object, pbehavtree
@@ -460,9 +463,7 @@ function BTLua.Action:run(pbehavtree)
     end
   end
   self.n,self.s = _ticknum, _s
-  if _s == "Running" then
-  end
-  --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+  if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
   return _s
 end
 --------------- ActionResume ----------------
@@ -482,7 +483,7 @@ function BTLua.ActionResume:init(paction,...)
 end
 function BTLua.ActionResume:run(pbehavtree)
   --debugprint("BTLua.ActionResume:run")
-  --if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
+  if pbehavtree.startNode then pbehavtree.startNode(pbehavtree,self) end
   local _status, _s
   local _ticknum = pbehavtree.ticknum
   local _object, _btree = pbehavtree.object, pbehavtree
@@ -500,7 +501,7 @@ function BTLua.ActionResume:run(pbehavtree)
     _status,_s = coresume(self.r, pbehavtree.object,pbehavtree)
   end
   self.n,self.s = _ticknum, _s
-  --if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
+  if pbehavtree.endNode then pbehavtree.endNode(pbehavtree,self) end
   return _s
 end
 --------------- RETURNTRUE ---------------
@@ -688,12 +689,12 @@ function BTLua.BTree:parseFunc(pfunc)
         elseif string.sub(_strfunc,1,1)=="!" then
           _function = _G[string.sub(_strfunc,2,-1)]
         else
-          if i==1 then 
-            _function = loadstring(_strfunc)
+          if i==1 then
+            _function = loadstring("return ".._strfunc)()
           else
             _function = _strfunc
           end
-        end 
+        end
         table.insert(_return,_function)
       end
     end
@@ -739,13 +740,13 @@ function BTLua.BTree:parseNode(pnode,pattributes)
     _node =  BTLua.DecoratorContinue:new(unpack(_func))
   end
   if _type =="WAIT" then
-    _node =  BTLua.Wait:new(unpack(_func))
+    _node =  BTLua.Wait:new(_func[1],_func[2],nil,unpack(_func,3,table.maxn(_func)))
   end
   if _type =="WAITCONTINUE" then
-    _node =  BTLua.WaitContinue:new(unpack(_func))
+    _node =  BTLua.WaitContinue:new(_func[1],_func[2],nil,unpack(_func,3,table.maxn(_func)))
   end
   if _type =="REPEATUNTIL" then
-    _node =  BTLua.RepeatUntil:new(unpack(_func))
+    _node =  BTLua.RepeatUntil:new(_func[1],_func[2],nil,unpack(_func,3,table.maxn(_func)))
   end
   if _type =="SLEEP" then
     _node =  BTLua.Sleep:new(unpack(_func))

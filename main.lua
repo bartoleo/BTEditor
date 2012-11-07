@@ -1,7 +1,7 @@
 -- game infos
 game_id = "BTEditor"
 game_title = "BTEditor"
-game_version = "01.02"
+game_version = "01.03"
 
 -- libraries
 Gamestate = require "lib/gamestate"
@@ -16,26 +16,30 @@ require("lib/loveframes/init")
 require("lib/BTLua")
 require("lib/assetloader")
 
+if images.icon then
+  love.graphics.setIcon( images.icon )
+end
+
 --profiler = require "profiler"
 
 function love.load()
 
-    -- Set filesystem identity
-    love.filesystem.setIdentity(game_id)
+  -- Set filesystem identity
+  love.filesystem.setIdentity(game_id)
 
-    love.graphics.setCaption(game_title.." v."..game_version)
+  love.graphics.setCaption(game_title.." v."..game_version)
 
-    readScreenMode("configs.txt")
+  readScreenMode("configs.txt",images.icon)
 
-    -- Set Random Seed
-    math.randomseed(os.time());
-    math.random()
-    math.random()
-    math.random()
+  -- Set Random Seed
+  math.randomseed(os.time());
+  math.random()
+  math.random()
+  math.random()
 
-    Gamestate.registerEvents()
-    require ("states/intro")
-    Gamestate.switch(Gamestate.intro)
+  Gamestate.registerEvents()
+  require ("states/intro")
+  Gamestate.switch(Gamestate.intro)
 
 end
 

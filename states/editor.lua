@@ -10,7 +10,6 @@ EDITOR={}
 EDITOR.fileversionsave = game_version
 EDITOR.fileversioncreate = game_version
 EDITOR.inputenabled = false
-EDITOR.filename = nil
 EDITOR.title = ""
 EDITOR.nodes = {}
 EDITOR.nodekeys = {}
@@ -177,6 +176,25 @@ function state:enter(pre, action, level,  ...)
   EDITOR.gui.divisor3 = object
 
   object = loveframes.Create("imagebutton")
+  object:SetImage(images.simulation)
+  object:SizeToImage()
+  object:SetText("")
+  object.OnClick = state.clickEvent
+  list:AddItem(object)
+  EDITOR.gui.simbutton = object
+  tooltip = loveframes.Create("tooltip")
+  tooltip:SetObject(object)
+  tooltip:SetPadding(0)
+  tooltip:SetOffsets(-50,30)
+  tooltip:SetText("Simulation Window")
+ 
+  object = loveframes.Create("text")
+  object:SetMaxWidth(32)
+  object:SetText(" ")
+  list:AddItem(object)
+  EDITOR.gui.divisor4 = object
+
+  object = loveframes.Create("imagebutton")
   object:SetImage(images.bin)
   object:SizeToImage()
   object:SetText("")
@@ -254,34 +272,49 @@ function state:enter(pre, action, level,  ...)
 
   object = loveframes.Create("text")
   object:SetFont(fonts[",9"])
-  object:SetMaxWidth(40)
+  object:SetMaxWidth(30)
   object:SetText("Type:")
   EDITOR.gui.lbl_nodetype = object
   object = loveframes.Create("textinput")
   object:SetFont(fonts[",9"])
   object.OnTextChanged = state.applyChangesNode
-  object:SetWidth(120)
+  object:SetWidth(100)
   object:SetHeight(17)
   EDITOR.gui.txt_nodetype = object
   object = loveframes.Create("text")
   object:SetFont(fonts[",9"])
-  object:SetMaxWidth(40)
+  object:SetMaxWidth(30)
   object:SetText("Name:")
   EDITOR.gui.lbl_nodename = object
   object = loveframes.Create("textinput")
   object:SetFont(fonts[",9"])
   object.OnTextChanged = state.applyChangesNode
-  object:SetWidth(120)
+  object:SetWidth(100)
   object:SetHeight(17)
   EDITOR.gui.txt_nodename = object
   object = loveframes.Create("text")
   object:SetFont(fonts[",9"])
-  object:SetMaxWidth(40)
+  object:SetMaxWidth(30)
+  object:SetText("Sim:")
+  EDITOR.gui.lbl_nodesim = object
+  object = loveframes.Create("multichoice")
+  --object:SetFont(fonts[",9"])
+  object:AddChoice("true")
+  object:AddChoice("false")
+  object:AddChoice("running")
+  object:AddChoice("")
+  object.OnChoiceSelected = state.applyChangesNode
+  object:SetWidth(60)
+  object:SetHeight(17)
+  EDITOR.gui.txt_nodesim = object
+  object = loveframes.Create("text")
+  object:SetFont(fonts[",9"])
+  object:SetMaxWidth(30)
   object:SetText("Func:")
   EDITOR.gui.lbl_nodefunc = object
   object = loveframes.Create("textinput")
   object:SetFont(fonts[",9"])
-  object:SetWidth(300)
+  object:SetWidth(323)
   object:SetHeight(17)
   object.OnTextChanged = state.applyChangesNode
   EDITOR.gui.txt_nodefunc = object
@@ -419,6 +452,7 @@ function state:draw()
   EDITOR.camera:attach()
   state:drawGrid()
   state:drawNodes()
+  state:drawNodesEvaluated()
   if EDITOR.mouseaction == "movepalette" then
     local _xc, _yc = EDITOR.camera:worldCoords(_x,_y)
     state:drawDragNodePalette(_xc,_yc)
@@ -481,29 +515,34 @@ function state:keypressed(key, unicode)
     if key=="f6" then
       if EDITOR.nodeselected and EDITOR.palettenodeselected then
         local _node = classes.node:new("",EDITOR.palettenodeselected.type,EDITOR.palettenodeselected.func,nil,nil,nil,nil,nil,EDITOR.nodeselected,nil)
-        _node.name = EDITOR.nodeselected.name..".".._node.indexchild
+        local _num = 1
+        for k,v in pairs(EDITOR.nodekeys) do
+          if v.type == _node.type then
+            _num = _num + 1
+          end
+        end
+        _node.name = _node.type.."_".._num
         _node:changeWidth()
         state:addnode(_node)
         EDITOR.dolayout=true
       end
     end
 
-    if key=="f11" then
+    if key=="f10" then
       assetloader.reload()
     end
 
+    if key=="f7" then
+      state:runSimulation(true)
+    end
+
+
+    if key=="f11" then
+      EDITOR.btlua = nil
+    end
+
     if key=="f12" then
-      EDITOR.btlua = BTLua.BTree:new(EDITOR.gui.txt_title:GetText(),nil,nil)
-      _tree = state:serializeTree()
-      local _status, _err = pcall(EDITOR.btlua.parseTable,EDITOR.btlua,nil,_tree,{"id"})
-      if _status==false then
-        state.createDialog(state.funcnil,"alert2","Error during parse of tree:\n".._err)
-        EDITOR.btlua = nil
-        return false
-      end
-      --print(Inspector(EDITOR.btlua))
-      --print(Inspector(_tree))
-      EDITOR.btlua:run()
+      state:runSimulation(false)
     end
 
   end
@@ -582,7 +621,13 @@ function state:mousereleased(x, y, button)
         local _targetnode = state:nodeHit(EDITOR.nodekeys,endx,endy)
         if _targetnode  then
           local _node = classes.node:new("",EDITOR.palettenodeselected.type,EDITOR.palettenodeselected.func,nil,nil,nil,nil,nil,_targetnode,nil)
-          _node.name = _targetnode.name..".".._node.indexchild
+          local _num=1
+          for k,v in pairs(EDITOR.nodekeys) do
+            if v.type == _node.type then
+              _num = _num + 1
+            end
+          end
+          _node.name = _node.type.."_".._num
           _node:changeWidth()
           state:addnode(_node)
           EDITOR.dolayout=true
@@ -629,6 +674,11 @@ function state.clickEvent(object, mousex , mousey)
   if object==EDITOR.gui.binbutton then
     state:deleteNode(EDITOR.nodeselected,true)
   end
+  if object==EDITOR.gui.simbutton then
+    if EDITOR.gui.framesimulation == nil then
+      state:createDialogSimulation()
+    end
+  end
   if object==EDITOR.gui.centerbutton then
     state:centerNode(EDITOR.nodeselected)
   end
@@ -651,6 +701,15 @@ function state.clickEvent(object, mousex , mousey)
   end
   if object==EDITOR.gui.btn_moveafter then
     state:switchOrderNodes(1)
+  end
+  if object==EDITOR.gui.btnclearsimulation then
+    EDITOR.btlua = nil
+  end
+  if object==EDITOR.gui.btnrunsimulation then
+    state:runSimulation(false)
+  end
+  if object==EDITOR.gui.btnstepsimulation then
+    state:runSimulation(run)
   end
 end
 
@@ -903,9 +962,10 @@ end
 
 function state.closeDialogOptions()
     if EDITOR.gui.dialog.returnvalue==true then
-      if changeScreenMode({width=EDITOR.gui.dialog.txt_customwidth:GetText(),height=EDITOR.gui.dialog.txt_customheight:GetText(),fullscreen=EDITOR.gui.dialog.chkfullscreen:GetChecked(),vsync=EDITOR.gui.dialog.chkvsync:GetChecked(),fsaa=0}) then
+      if changeScreenMode({width=EDITOR.gui.dialog.txt_customwidth:GetText(),height=EDITOR.gui.dialog.txt_customheight:GetText(),fullscreen=EDITOR.gui.dialog.chkfullscreen:GetChecked(),vsync=EDITOR.gui.dialog.chkvsync:GetChecked(),fsaa=0},images.icon) then
         getScreenMode()
         saveScreenMode("configs.txt")
+        state.changedCameraWorld()
       end
     end
     state:layoutGui()
@@ -1033,7 +1093,7 @@ end
 function state:layout()
   local _collision = false
   local _a,_b,_step
-  state:updateNodes()
+  --state:updateNodes()
   for i,v in pairs(EDITOR.nodekeys) do
     v.y = (v.level-1) *EDITOR.divisory
     for ii,vv in pairs(EDITOR.nodekeys) do
@@ -1078,8 +1138,10 @@ function state:layout()
           _maxx = vv.x+vv.width
         end
         if (v.x+v.width/2~=(_minx+_maxx)/2) then
-          v.x = (_minx+_maxx)/2-v.width/2
-          _collision = true
+          if math.abs(v.x-(_minx+_maxx)/2-v.width/2)>2 then
+            v.x = (_minx+_maxx)/2-v.width/2
+            --_collision = true
+          end
         end
       end
     end
@@ -1144,6 +1206,7 @@ function state:updateNodes()
     v.indexchild = _indexchild
     _levelindex=state:updatenode(v,_levelindex)
   end
+  EDITOR.btlua=nil
 end
 function state:updatenode(pnode,plevelindex)
    local _levelindex=plevelindex
@@ -1170,11 +1233,12 @@ function state:updatenode(pnode,plevelindex)
    return _levelindex
 end
 
-function EDITOR.drawArrow(x1,y1,x2,y2)
+function EDITOR.drawArrow(x1,y1,x2,y2,parrowsize)
+  local _cos,_sin=math.cos,math.sin
   local angle = math.atan2(y1-y2, x1-x2)
   love.graphics.line(x1,y1,x2,y2)
-  love.graphics.line(x2,y2,x2+math.cos(angle-0.25)*EDITOR.arrowsize,y2+math.sin(angle-0.25)*EDITOR.arrowsize)
-  love.graphics.line(x2,y2,x2+math.cos(angle+0.25)*EDITOR.arrowsize,y2+math.sin(angle+0.25)*EDITOR.arrowsize)
+  love.graphics.line(x2,y2,x2+_cos(angle-0.25)*parrowsize,y2+_sin(angle-0.25)*parrowsize)
+  love.graphics.line(x2,y2,x2+_cos(angle+0.25)*parrowsize,y2+_sin(angle+0.25)*parrowsize)
 end
 
 function state:layoutGui()
@@ -1186,7 +1250,7 @@ function state:layoutGui()
   EDITOR.gui.toolbar:SetPos(0,0)
   EDITOR.gui.divisorcenter:SetMaxWidth(0)
   EDITOR.gui.toolbar:SetSize(screen_width,32)
-  EDITOR.gui.divisorcenter:SetMaxWidth(screen_width-510)
+  EDITOR.gui.divisorcenter:SetMaxWidth(screen_width-575)
   EDITOR.gui.toolbar:RedoLayout ()
   EDITOR.firstdraw = 2
 
@@ -1392,7 +1456,7 @@ function state.saveFile()
     return false
   end
   EDITOR.title = EDITOR.gui.txt_title:GetText()
-  local tree = state.serializeTree()
+  local tree = state.serializeTree(false)
   local treeser
   if string.ends(string.upper(EDITOR.filename),".JSON") then
     treeser = json.encode(tree)
@@ -1463,6 +1527,8 @@ function state.loadFile()
   state:updateNodes()
   EDITOR.dolayout = true
 
+  EDITOR.btlua = nil
+
   EDITOR.gui.txt_title:SetText(EDITOR.title)
   EDITOR.gui.chkautolayout:SetChecked(EDITOR.autolayout)
 
@@ -1492,7 +1558,7 @@ function state.deserializeChild(pnodeParent,pnode,plevel)
   state:addnode(_node)
 end
 
-function state.serializeTree()
+function state.serializeTree(psimulation)
   local tree={}
   tree.title = EDITOR.title
   tree.notes = EDITOR.notes
@@ -1502,19 +1568,32 @@ function state.serializeTree()
 
   tree.nodes={}
   for i,v in ipairs(EDITOR.nodes) do
-    tree.nodes = state.serializeNode(tree.nodes,v,1)
+    tree.nodes = state.serializeNode(tree.nodes,v,1,psimulation)
   end
   return tree
 end
 
-function state.serializeNode(pnodeparent, pnode,plevel)
+function state.serializeNode(pnodeparent, pnode,plevel,psimulation)
   local node = {}
+  local _funcsim
   for k,v in pairs(pnode) do
     if (type(v)=="boolean" or type(v)=="string" or type(v)=="number") and string.starts(k,"_")==false then
       node[k] = v
+      if psimulation and k=="func" then
+        _funcsim = ""
+        if pnode.sim == "true" then
+          _funcsim = "BTLua.ReturnTrue"
+        elseif pnode.sim == "false" then
+          _funcsim = "BTLua.ReturnFalse"
+        elseif pnode.sim == "running" then
+          _funcsim = "BTLua.ReturnRunning"
+        end
+        print (_funcsim)
+        node[k] = _funcsim
+      end
     elseif k == "children" then
       for ii,vv in ipairs(v) do
-        node = state.serializeNode(node,vv,plevel+1)
+        node = state.serializeNode(node,vv,plevel+1,psimulation)
       end
     end
   end
@@ -1572,6 +1651,7 @@ function state.applyChangesNode(object, text)
     EDITOR.nodeselected.type=EDITOR.gui.txt_nodetype:GetText()
     EDITOR.nodeselected.name=EDITOR.gui.txt_nodename:GetText()
     EDITOR.nodeselected.func=EDITOR.gui.txt_nodefunc:GetText()
+    EDITOR.nodeselected.sim=EDITOR.gui.txt_nodesim:GetChoice()
     EDITOR.nodeselected:changeWidth()
     local _oldvalid = EDITOR.nodeselected.valid
     local _valid = 0
@@ -1594,9 +1674,9 @@ function state.positionEditNode()
     local _x,_y = _xo,_yo
     local _widtho,_heighto = EDITOR.camera:cameraCoords(EDITOR.nodeselected.x+EDITOR.nodeselected.width,EDITOR.nodeselected.y+EDITOR.nodeselected.height)
     local _width,_height = _widtho,_heighto
-    if _x+339 > screen_width-EDITOR.palettewidth then
-      _width = _width + (screen_width-EDITOR.palettewidth-_x-339)
-      _x = _x + (screen_width-EDITOR.palettewidth-_x-339)
+    if _x+362 > screen_width-EDITOR.palettewidth then
+      _width = _width + (screen_width-EDITOR.palettewidth-_x-362)
+      _x = _x + (screen_width-EDITOR.palettewidth-_x-362)
     end
     if _x < 0 then
       _width = _width + (-_x)
@@ -1604,8 +1684,10 @@ function state.positionEditNode()
     end
     EDITOR.gui.lbl_nodetype:SetPos(_x+2,_height+7)
     EDITOR.gui.txt_nodetype:SetPos(_x+35,_height+2)
-    EDITOR.gui.lbl_nodename:SetPos(_x+172,_height+7)
-    EDITOR.gui.txt_nodename:SetPos(_x+205,_height+2)
+    EDITOR.gui.lbl_nodename:SetPos(_x+135,_height+7)
+    EDITOR.gui.txt_nodename:SetPos(_x+168,_height+2)
+    EDITOR.gui.lbl_nodesim:SetPos(_x+270,_height+7)
+    EDITOR.gui.txt_nodesim:SetPos(_x+299,_height+2)
     EDITOR.gui.lbl_nodefunc:SetPos(_x+2,_height+25)
     EDITOR.gui.txt_nodefunc:SetPos(_x+35,_height+20)
     EDITOR.box={x=_x,y=_y,width=_width,height=_height}
@@ -1617,9 +1699,9 @@ end
 function state.drawEditBox()
   if EDITOR.box and EDITOR.nodeselected and EDITOR.nodeselected.type~="Start" then
     love.graphics.setColor(0,0,0,200)
-    love.graphics.rectangle("line",EDITOR.box.x,EDITOR.box.height,337,39)
+    love.graphics.rectangle("line",EDITOR.box.x,EDITOR.box.height,360,39)
     love.graphics.setColor(255,255,255,200)
-    love.graphics.rectangle("fill",EDITOR.box.x,EDITOR.box.height,337,39)
+    love.graphics.rectangle("fill",EDITOR.box.x,EDITOR.box.height,360,39)
   end
 end
 
@@ -1672,6 +1754,8 @@ function state:newTree()
   endy=0
   starty=0
 
+  EDITOR.btlua = nil
+
   state:changeNodeSelected(EDITOR.nodes[1])
 end
 
@@ -1680,11 +1764,19 @@ function state:refreshNodeEditBox()
     EDITOR.gui.txt_nodetype:SetText(EDITOR.nodeselected.type)
     EDITOR.gui.txt_nodename:SetText(EDITOR.nodeselected.name)
     EDITOR.gui.txt_nodefunc:SetText(EDITOR.nodeselected.func)
+    if EDITOR.nodeselected.sim then
+      EDITOR.gui.txt_nodesim:SetChoice(EDITOR.nodeselected.sim)
+    else
+      EDITOR.gui.txt_nodesim:SetChoice("")
+      EDITOR.gui.txt_nodesim:SetText("")
+    end
     if EDITOR.nodeselected.type=="Start" then
       EDITOR.gui.lbl_nodetype:SetVisible(false)
       EDITOR.gui.txt_nodetype:SetVisible(false)
       EDITOR.gui.lbl_nodename:SetVisible(false)
       EDITOR.gui.txt_nodename:SetVisible(false)
+      EDITOR.gui.lbl_nodesim:SetVisible(false)
+      EDITOR.gui.txt_nodesim:SetVisible(false)
       EDITOR.gui.lbl_nodefunc:SetVisible(false)
       EDITOR.gui.txt_nodefunc:SetVisible(false)
       EDITOR.gui.btn_movebefore:SetVisible(false)
@@ -1694,6 +1786,13 @@ function state:refreshNodeEditBox()
       EDITOR.gui.txt_nodetype:SetVisible(true)
       EDITOR.gui.lbl_nodename:SetVisible(true)
       EDITOR.gui.txt_nodename:SetVisible(true)
+      if EDITOR.nodeselected.type=="Selector" or EDITOR.nodeselected.type=="RandomSelector" or EDITOR.nodeselected.type=="Sequence" then
+        EDITOR.gui.lbl_nodesim:SetVisible(false)
+        EDITOR.gui.txt_nodesim:SetVisible(false)
+      else
+        EDITOR.gui.lbl_nodesim:SetVisible(true)
+        EDITOR.gui.txt_nodesim:SetVisible(true)
+      end
       EDITOR.gui.lbl_nodefunc:SetVisible(true)
       EDITOR.gui.txt_nodefunc:SetVisible(true)
       EDITOR.gui.txt_nodefunc:SetFocus(true)
@@ -1726,4 +1825,182 @@ function state:drawDragNode(px,py)
     love.graphics.setColor(0,0,0,255)
     EDITOR.nodeselected:drawShape2(EDITOR.nodeselected.type,"line",px-offsetx,py-offsety,EDITOR.nodeselected.width,EDITOR.nodeselected.height)
   end
+end
+
+function state:drawNodesEvaluated()
+  local _returns=0
+  if EDITOR.btlua and EDITOR.btlua.nodesEvaluated then
+    local _prev,_prevnode, _node
+    for i,v in ipairs(EDITOR.btlua.nodesEvaluated) do
+      _node = EDITOR.nodekeys[v.id]
+      if i>1 and _prevnode~=_node then
+        love.graphics.setLine(4,"smooth")
+        love.graphics.setColor(0,0,0,255)
+        EDITOR.drawArrow(_prevnode.x+_prevnode.width/2+_prev.offset*13,_prevnode.y+_prevnode.height/2,_node.x+_node.width/2+v.offset*13,_node.y+_node.height/2,EDITOR.arrowsize*2)
+        love.graphics.setLine(2,"smooth")
+        love.graphics.setColor(255,255,255,255)
+        EDITOR.drawArrow(_prevnode.x+_prevnode.width/2+_prev.offset*13,_prevnode.y+_prevnode.height/2,_node.x+_node.width/2+v.offset*13,_node.y+_node.height/2,EDITOR.arrowsize*2)
+      end
+      if v.ev=="end" and v.ret then
+        _returns=_returns+1
+        local _middlex,_middley = _node.x+_node.width/2,_node.y+_node.height/2
+        if v.ret=="true" then
+          love.graphics.setColor(50,220,50,255)
+        elseif v.ret=="false" then
+          love.graphics.setColor(255,75,75,255)
+        elseif v.ret=="Running" then
+          love.graphics.setColor(100,100,255,255)
+        else
+          love.graphics.setColor(255,255,255,255)
+        end
+        love.graphics.rectangle("fill",_middlex-30,_middley+5,60,14)
+        love.graphics.setColor(0,0,0,255)
+        love.graphics.rectangle("line",_middlex-30,_middley+5,60,14)
+        love.graphics.print(_returns..":"..v.ret,_middlex-28,_middley+6)
+      end
+      _prevnode = _node
+      _prev = v
+    end
+  end
+  love.graphics.setLine(1,"smooth")
+end
+
+function state:updateNodesEvaluated()
+  local _prev, _node, _min
+  for i,v in ipairs(EDITOR.btlua.nodesEvaluated) do
+    v._offset =  0
+  end
+  for i,v in ipairs(EDITOR.btlua.nodesEvaluated) do
+    for ii =  1,i-1 do
+      if EDITOR.btlua.nodesEvaluated[ii].id == v.id and ii~=i-1 then
+        EDITOR.btlua.nodesEvaluated[ii]._offset = EDITOR.btlua.nodesEvaluated[ii]._offset - 1
+      end
+    end
+  end
+  for i,v in ipairs(EDITOR.btlua.nodesEvaluated) do
+    if v.offset ==nil then
+      _min = v._offset
+      for ii =  1,#EDITOR.btlua.nodesEvaluated do
+        if EDITOR.btlua.nodesEvaluated[ii].id == v.id then
+          if _min>EDITOR.btlua.nodesEvaluated[ii]._offset then
+            _min = EDITOR.btlua.nodesEvaluated[ii]._offset
+          end
+        end
+      end
+      for ii =  1,#EDITOR.btlua.nodesEvaluated do
+        if EDITOR.btlua.nodesEvaluated[ii].id == v.id then
+          EDITOR.btlua.nodesEvaluated[ii].offset = EDITOR.btlua.nodesEvaluated[ii]._offset -_min/2
+        end
+      end
+    end
+  end
+end
+
+function EDITOR.startNodeEvaluate(pbt,pnode)
+  local _node = EDITOR.nodekeys[pnode.id]
+  print (string.rep("  ",_node.level-2).."start ".._node.type.." name:".._node.name .. " id:"..pnode.id)
+  if _node.parent and (_node.parent.type=="Selector" or _node.parent.type=="RandomSelector") then
+    if EDITOR.btlua.nodesEvaluated[#EDITOR.btlua.nodesEvaluated-1].id ~= _node.parent.id then
+      table.insert(EDITOR.btlua.nodesEvaluated,{id=_node.parent.id,ret=nil,ev="pass"})
+    end
+  end
+  table.insert(EDITOR.btlua.nodesEvaluated,{id=pnode.id,ret=pnode.s,ev="start"})
+end
+
+function EDITOR.endNodeEvaluate(pbt,pnode)
+  local _return = pnode.s
+  if _return == true then
+    _return = "true"
+  elseif _return == false then
+    _return = "false"
+  elseif _return == nil then
+    _return = "nil"
+  end
+
+  print (string.rep("  ",EDITOR.nodekeys[pnode.id].level-2).."end "..EDITOR.nodekeys[pnode.id].type.." name:"..EDITOR.nodekeys[pnode.id].name .. " id:"..pnode.id.." returns:".._return)
+
+  table.insert(EDITOR.btlua.nodesEvaluated,{id=pnode.id,ret=_return,ev="end"})
+end
+
+function EDITOR.endNodeEvaluateYield(pbt,pnode)
+  EDITOR.endNodeEvaluate(pbt,pnode)
+  coroutine.yield()
+end
+
+function state:runSimulation(pStepByStep)
+  if pStepByStep==false or EDITOR.btlua == nil or EDITOR.btlua.runner == nil or coroutine.status(EDITOR.btlua.runner) == "dead" then
+    EDITOR.btlua = BTLua.BTree:new(EDITOR.gui.txt_title:GetText(),nil,nil)
+    _tree = state:serializeTree(true)
+    local _status, _err = pcall(EDITOR.btlua.parseTable,EDITOR.btlua,nil,_tree,{"id"})
+    if _status==false then
+      state.createDialog(state.funcnil,"alert2","Error during parse of tree:\n".._err)
+      EDITOR.btlua = nil
+      return false
+    end
+    --print(Inspector(EDITOR.btlua))
+    --print(Inspector(_tree))
+    EDITOR.btlua.startNode=EDITOR.startNodeEvaluate
+    if pStepByStep then
+      EDITOR.btlua.endNode=EDITOR.endNodeEvaluateYield
+    else
+      EDITOR.btlua.endNode=EDITOR.endNodeEvaluate
+    end
+    EDITOR.btlua.nodesEvaluated={{id=EDITOR.nodes[1].id,ret=""}}
+    print ("")
+    print ("--START EVALUATING TREE "..EDITOR.gui.txt_title:GetText().." ------------------- ")
+    if pStepByStep then
+      EDITOR.btlua.runner = coroutine.create(EDITOR.btlua.run)
+    end
+  end
+  if pStepByStep then
+    if EDITOR.btlua.runner and coroutine.status(EDITOR.btlua.runner) ~= "dead" then
+      if coroutine.resume(EDITOR.btlua.runner,EDITOR.btlua)==false then
+        EDITOR.btlua.runner = nil
+      end
+      state:updateNodesEvaluated()
+      if EDITOR.btlua.runner == nil or coroutine.status(EDITOR.btlua.runner) == "dead" then
+        print ("--END EVALUATING TREE "..EDITOR.gui.txt_title:GetText().." ------------------- ")
+      end
+    end
+  else
+      EDITOR.btlua:run()
+      print ("--END EVALUATING TREE "..EDITOR.gui.txt_title:GetText().." ------------------- ")
+      state:updateNodesEvaluated()
+  end
+end
+
+function state.createDialogSimulation()
+
+    local frame = loveframes.Create("frame")
+    frame:ShowCloseButton(true)
+    frame:SetName("Simulation")
+    frame.OnClose = function () EDITOR.gui.framesimulation=nil end
+    frame:SetSize(90,155)
+    frame:SetPos(10,EDITOR.toolbarheight+10)
+    EDITOR.gui.framesimulation = frame
+
+    local object = loveframes.Create("button",frame)
+    object:SetPos(5,30)
+    object:SetText("Clear")
+    object.OnClick = state.clickEvent
+    EDITOR.gui.btnclearsimulation=object
+
+    object = loveframes.Create("button",frame)
+    object:SetPos(5,60)
+    object:SetText("Run")
+    object.OnClick = state.clickEvent
+    EDITOR.gui.btnrunsimulation=object
+
+    object = loveframes.Create("button",frame)
+    object:SetPos(5,90)
+    object:SetText("Step")
+    object.OnClick = state.clickEvent
+    EDITOR.gui.btnstepsimulation=object
+
+    object = loveframes.Create("text",frame)
+    object:SetFont(fonts[",9"])
+    object:SetPos(5,120)
+    object:SetMaxWidth (80)
+    object:SetText("Change node return value using 'sim' field")
+
 end

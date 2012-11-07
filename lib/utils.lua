@@ -251,15 +251,19 @@ function getScreenMode()
   _G.subtractive_supported = love.graphics.isSupported("subtractive")
 end
 
-function changeScreenMode(ptable)
+function changeScreenMode(ptable,picon)
   if ptable then
-    return love.graphics.setMode( ptable.width, ptable.height, ptable.fullscreen, ptable.vsync, ptable.fsaa )
+    local _b = love.graphics.setMode( ptable.width, ptable.height, ptable.fullscreen, ptable.vsync, ptable.fsaa )
+    if picon then
+      love.graphics.setIcon( picon )
+    end
+    return _b
   else
     return false
   end
 end
 
-function readScreenMode(pfile)
+function readScreenMode(pfile,picon)
   if love.filesystem.exists(pfile)==false then
     saveScreenMode(pfile)
   end
@@ -268,7 +272,7 @@ function readScreenMode(pfile)
     if (_config) then
       local screenconfig =  json.decode(_config)
       if screenconfig then
-        changeScreenMode(screenconfig)
+        changeScreenMode(screenconfig,picon)
       end
     end
   end
