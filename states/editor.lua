@@ -35,6 +35,7 @@ EDITOR.fileHistory={}
 EDITOR.nodesNotValid=0
 EDITOR.mousePointer=nil
 EDITOR.notes = ""
+EDITOR.centerparentchildren = 0
 
 function state:enter(pre, action, level,  ...)
 
@@ -1123,31 +1124,39 @@ function state:layout()
       end
     end
   end
-  -- parent nodes are on center of children
-  local _ox,_oy = EDITOR.nodes[1].x,EDITOR.nodes[1].y
-  local _minx,_maxx
-  for i,v in pairs(EDITOR.nodekeys) do
-    if v.children then
-      for ii,vv in ipairs(v.children) do
-        if ii == 1 then
-          _minx=vv.x
-          _maxx=vv.x+vv.width
-        elseif vv.x<_minx then
-          _minx = vv.x
-        elseif vv.x>_maxx then
-          _maxx = vv.x+vv.width
-        end
-        if (v.x+v.width/2~=(_minx+_maxx)/2) then
-          if math.abs(v.x-(_minx+_maxx)/2-v.width/2)>2 then
-            v.x = (_minx+_maxx)/2-v.width/2
-            --_collision = true
+  if _collision and EDITOR.centerparentchildren<3 then
+    EDITOR.centerparentchildren=3
+  elseif EDITOR.centerparentchildren==0 then
+    EDITOR.centerparentchildren=1
+  end
+  if EDITOR.centerparentchildren>0 then
+    -- parent nodes are on center of children
+    local _ox,_oy = EDITOR.nodes[1].x,EDITOR.nodes[1].y
+    local _minx,_maxx
+    for i,v in pairs(EDITOR.nodekeys) do
+      if v.children then
+        for ii,vv in ipairs(v.children) do
+          if ii == 1 then
+            _minx=vv.x
+            _maxx=vv.x+vv.width
+          elseif vv.x<_minx then
+            _minx = vv.x
+          elseif vv.x>_maxx then
+            _maxx = vv.x+vv.width
+          end
+          if (v.x+v.width/2~=(_minx+_maxx)/2) then
+            if math.abs(v.x-(_minx+_maxx)/2-v.width/2)>2 then
+              v.x = (_minx+_maxx)/2-v.width/2
+              --_collision = true
+            end
           end
         end
       end
     end
+    -- recenter tree on top node
+    state:moveNode(EDITOR.nodes[1],_ox-EDITOR.nodes[1].x,_oy-EDITOR.nodes[1].y,true)
+    EDITOR.centerparentchildren=EDITOR.centerparentchildren-1
   end
-  -- recenter tree on top node
-  state:moveNode(EDITOR.nodes[1],_ox-EDITOR.nodes[1].x,_oy-EDITOR.nodes[1].y,true)
   if _collision == false then
     EDITOR.dolayout=false
   end
@@ -1588,7 +1597,9 @@ function state.serializeNode(pnodeparent, pnode,plevel,psimulation)
         elseif pnode.sim == "running" then
           _funcsim = "BTLua.ReturnRunning"
         end
-        print (_funcsim)
+        if pnode.type=="Wait" or pnode.type=="WaitContinue" or pnode.type=="RepeatUntil" or pnode.type=="Sleep" then
+          _funcsim="1|".._funcsim
+        end
         node[k] = _funcsim
       end
     elseif k == "children" then
