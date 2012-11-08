@@ -1124,8 +1124,8 @@ function state:layout()
       end
     end
   end
-  if _collision and EDITOR.centerparentchildren<3 then
-    EDITOR.centerparentchildren=3
+  if _collision and EDITOR.centerparentchildren<6 then
+    EDITOR.centerparentchildren=6
   elseif EDITOR.centerparentchildren==0 then
     EDITOR.centerparentchildren=1
   end

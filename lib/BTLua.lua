@@ -183,11 +183,7 @@ function BTLua.Filter:init(pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
-  if type(pcondition) == "string" then
-    self.a = loadstring("return "..pcondition)()
-  else
-    self.a = pcondition
-  end
+  self.a = pcondition
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -234,11 +230,7 @@ function BTLua.Decorator:init(pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
-  if type(pcondition) == "string" then
-    self.a = loadstring("return "..pcondition)()
-  else
-    self.a = pcondition
-  end
+  self.a = pcondition
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -285,11 +277,7 @@ function BTLua.DecoratorContinue:init(pcondition,pchild,...)
   self.s = ""
   self.n = -1
   self.c = {pchild}
-  if type(pcondition) == "string" then
-    self.a = loadstring("return "..pcondition)()
-  else
-    self.a = pcondition
-  end
+  self.a = pcondition
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -340,13 +328,7 @@ function BTLua.Wait:init(ptimeout,pcondition,pchild,...)
   if self.t == nil then
     self.t = 1
   end
-  if type(pcondition) == "string" then
-    self.a = loadstring("return "..pcondition)()
-  else
-    self.a = pcondition
-  end
-  print(pcondition)
-  print(self.a)
+  self.a = pcondition
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -415,11 +397,7 @@ function BTLua.WaitContinue:init(ptimeout,pcondition,pchild,...)
   if self.t == nil then
     self.t = 1
   end
-  if type(pcondition) == "string" then
-    self.a = loadstring("return "..pcondition)()
-  else
-    self.a = pcondition
-  end
+  self.a = pcondition
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -483,11 +461,7 @@ function BTLua.RepeatUntil:init(ptimeout,pcondition,pchild,...)
   if self.t == nil then
     self.t = 1
   end
-  if type(pcondition) == "string" then
-    self.a = loadstring("return "..pcondition)()
-  else
-    self.a = pcondition
-  end
+  self.a = pcondition
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -555,11 +529,7 @@ BTLua.Condition = inheritsFrom(BTLua.node)
 function BTLua.Condition:init(pcondition,...)
   self.s = ""
   self.n = -1
-  if type(pcondition) == "string" then
-    self.a = loadstring("return "..pcondition)()
-  else
-    self.a = pcondition
-  end
+  self.a = pcondition
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -588,11 +558,7 @@ BTLua.Action = inheritsFrom(BTLua.node)
 function BTLua.Action:init(paction,...)
   self.s = ""
   self.n = -1
-  if type(paction) == "string" then
-    self.a = loadstring("return "..paction)()
-  else
-    self.a = paction
-  end
+  self.a = paction
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -620,11 +586,7 @@ BTLua.ActionResume = inheritsFrom(BTLua.node)
 function BTLua.ActionResume:init(paction,...)
   self.s = ""
   self.n = -1
-  if type(paction) == "string" then
-    self.a = loadstring("return "..paction)()
-  else
-    self.a = paction
-  end
+  self.a = paction
   if select("#",...)>0 then
     self.a2 = {...}
   end
@@ -716,17 +678,20 @@ end
 
 function BTLua.BTree:initialize()
   for i=1,#self.tree do
-    self:setParentChildren(self.tree[i],nil)
+    self:initializeChildren(self.tree[i],nil)
   end
   self.initialized=true
 end
 
-function BTLua.BTree:setParentChildren(pnode,pparent)
+function BTLua.BTree:initializeChildren(pnode,pparent)
   if pnode then
     pnode.p =pparent
+    if type(pnode.a)=="string" then
+      pnode.a = self:parseFunc(pnode.a)
+    end
     if pnode.c then
       for i=1,#pnode.c do
-        self:setParentChildren(pnode.c[i],pnode)
+        self:initializeChildren(pnode.c[i],pnode)
       end
     end
   end
@@ -789,6 +754,23 @@ function BTLua.BTree:parseNodeAndAdd(pparent,pnode,pattributes)
 end
 
 function BTLua.BTree:parseFunc(pfunc)
+  local _function
+  print(pfunc)
+  local _object, _btree = self.object, self
+  if string.sub(pfunc,1,1)=="#" then
+    _function = _object[string.sub(pfunc,2,-1)]
+  elseif string.sub(pfunc,1,1)=="@" then
+    _function = _btree[string.sub(pfunc,2,-1)]
+  elseif string.sub(pfunc,1,1)=="!" then
+    _function = _G[string.sub(pfunc,2,-1)]
+  elseif pfunc~=nil and pfunc~="" then
+    _function = loadstring("return "..pfunc)()
+  end
+  print(_function)
+  return _function
+end
+
+function BTLua.BTree:parseFuncs(pfunc)
   -- Compatibility: Lua-5.0
   local function split(str, delim, maxNb)
       -- Eliminate bad cases...
@@ -819,7 +801,6 @@ function BTLua.BTree:parseFunc(pfunc)
   end
   local _funcs = split(pfunc,"|")
   local _return ={}
-  local _object, _btree = self.object, self
   for i,v in ipairs(_funcs) do
     if v ~= "" then
       local _function
@@ -831,19 +812,7 @@ function BTLua.BTree:parseFunc(pfunc)
         -- number
         table.insert(_return,tonumber(_strfunc))
       else
-        if string.sub(_strfunc,1,1)=="#" then
-          _function = _object[string.sub(_strfunc,2,-1)]
-        elseif string.sub(_strfunc,1,1)=="@" then
-          _function = _btree[string.sub(_strfunc,2,-1)]
-        elseif string.sub(_strfunc,1,1)=="!" then
-          _function = _G[string.sub(_strfunc,2,-1)]
-        elseif _strfunc~=nil and _strfunc~="" then
-          if i==1 or string.sub(_strfunc,1,8)=="function"then
-            _function = loadstring("return ".._strfunc)()
-          else
-            _function = _strfunc
-          end
-        end
+        _function = self:parseFunc(_strfunc)
         table.insert(_return,_function)
       end
     end
@@ -856,7 +825,7 @@ function BTLua.BTree:parseNode(pnode,pattributes)
   local _type = string.upper(pnode.type)
   local _func = nil
   if pnode.func then
-    _func =  self:parseFunc(pnode.func)
+    _func =  self:parseFuncs(pnode.func)
   end
   if _type =="START" then
     return nil
